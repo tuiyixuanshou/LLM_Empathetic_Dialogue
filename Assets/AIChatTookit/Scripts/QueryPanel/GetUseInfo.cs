@@ -8,6 +8,7 @@ public class GetUseInfo : MonoBehaviour
 {
     public InputField UserNameInput;
     public InputField AINameInput;
+    public InputField AICharacterInput;
 
 
     public void testfunc()
@@ -23,5 +24,10 @@ public class GetUseInfo : MonoBehaviour
     public void SaveAIName()
     {
         Settings.Instance.AIName = AINameInput.text;
+    }
+
+    public void SaveAICharactor()
+    {
+        Settings.Instance.AICharacter = AICharacterInput.text;
     }
 }

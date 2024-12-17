@@ -560,5 +560,5 @@ MonoBehaviour:
   BubbleBack: {fileID: 558978111762120244}
   BubbleName: {fileID: 6328482094626915116}
   TextBackPadding: 10
-  TextNamePadding: 70
+  TextNamePadding: 105
   isRight: 0

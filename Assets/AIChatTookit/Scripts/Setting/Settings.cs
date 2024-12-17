@@ -7,4 +7,6 @@ public class Settings:Singleton<Settings>
 {
     public string UserName = "中传最后的温柔";
     public string AIName = "真新镇的小智";
+    [TextArea(15,20)]
+    public string AICharacter = "";
 }
