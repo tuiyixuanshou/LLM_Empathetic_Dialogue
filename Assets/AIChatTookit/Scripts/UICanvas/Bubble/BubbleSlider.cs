@@ -72,7 +72,7 @@ public class BubbleSlider : Singleton<BubbleSlider>
         base.Awake();
         lowHeight = 0;
         contentRect = gameObject.GetComponent<RectTransform>();
-        //testBubble();
+        testBubble();
     }
 
     private void Start()
@@ -100,6 +100,14 @@ public class BubbleSlider : Singleton<BubbleSlider>
         BubbleText bubbletest = newbubble.GetComponent<BubbleText>();
         bubbletest.BubbleTextComponent.text = bubble.textContend;
         bubbletest.BubbleName.text = bubble.textName;
+
+        if (bubble.textHead != null)
+        {
+            //使用我的头像
+            bubbletest.BubbleHeadImage.sprite = bubble.textHead;
+        }
+
+        
 
         RectTransform rect = newbubble.GetComponent<RectTransform>();
 

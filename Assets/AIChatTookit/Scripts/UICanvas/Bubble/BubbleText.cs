@@ -10,6 +10,7 @@ public class BubbleText : MonoBehaviour
     public Image BubbleTextBack;
     public Image BubbleBack;
     public Text BubbleName;
+    public Image BubbleHeadImage;
 
     [Header("边界数值调整")]
     public float TextBackPadding;

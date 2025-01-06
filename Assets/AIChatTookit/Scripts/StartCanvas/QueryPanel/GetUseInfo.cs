@@ -10,11 +10,26 @@ public class GetUseInfo : MonoBehaviour
     public InputField AINameInput;
     public InputField AICharacterInput;
 
+    public InputField positivePrompt;
+    public InputField negativePrompt;
+
+    public ComfyUI_Pool pool;
 
     public void testfunc()
     {
         Debug.Log("µ÷ÓÃOn End");
     }
+
+    public void SavepositivePrompt()
+    {
+        pool.jsonTextDatas[0].inputs.text = positivePrompt.text;
+    }
+
+    public void SavenegativePrompt()
+    {
+        pool.jsonTextDatas[1].inputs.text = negativePrompt.text;
+    }
+
 
     public void SaveUseName()
     {

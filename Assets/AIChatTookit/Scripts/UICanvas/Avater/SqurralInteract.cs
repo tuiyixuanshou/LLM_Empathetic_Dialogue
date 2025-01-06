@@ -28,7 +28,7 @@ public class SqurralInteract : MonoBehaviour
                     {
                         Debug.Log("Avatar was touched!");
                         //OnAvatarTouched();
-                        ChangePosition();
+                        //ChangePosition();
                         CreatBubble(Settings.Instance.AIName, "±ð¶¯ÎÒÀ²£¡" , false, null);
                     }
                 }

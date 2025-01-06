@@ -559,6 +559,7 @@ MonoBehaviour:
   BubbleTextBack: {fileID: 4585724370374482266}
   BubbleBack: {fileID: 558978111762120244}
   BubbleName: {fileID: 6328482094626915116}
+  BubbleHeadImage: {fileID: 3458264329737222235}
   TextBackPadding: 10
   TextNamePadding: 105
   isRight: 0
