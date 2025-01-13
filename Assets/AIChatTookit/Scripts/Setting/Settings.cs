@@ -7,8 +7,11 @@ public class Settings:Singleton<Settings>
 {
     public string UserName = "中传最后的温柔";
     public string AIName = "真新镇的小智";
-    [TextArea(15,20)]
-    public string AICharacter = "";
+    //public int Bearing = 0;
+
+
+    [TextArea(10,5)]
+    public string AICharacter = "乐观善良，但是经常有点脱线";
 
     public Texture2D tex;
 
@@ -24,6 +27,12 @@ public class Settings:Singleton<Settings>
         // PixelsPerUnit: 纹理每单位的像素数（通常为 100）
         return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100.0f);
     }
+}
+
+public enum AIModel
+{
+    Ollama_Local_Llama3_1,
+    Silicon_Llama_3_3_70B
 }
 
 

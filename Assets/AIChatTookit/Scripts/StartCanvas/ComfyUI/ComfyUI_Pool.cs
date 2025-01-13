@@ -42,6 +42,7 @@ public class ComfyUI_Pool : MonoBehaviour
             "\"28\":" + JsonUtility.ToJson(jsonImageDatas[2]) + "," + //style image
             "\"29\":" + JsonUtility.ToJson(jsonImageDatas[1]) + "," + //style image
             "\"1\":" + JsonUtility.ToJson(jsonImageDatas[0]) + "}}";   //1: base image
+        Debug.Log(AllJson);
         StartCoroutine(PostRequest(url, AllJson));
     }
     
