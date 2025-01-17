@@ -4094,7 +4094,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &846325537
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4190,7 +4190,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1731297910842264341, guid: b2e918cb29a359141ac639d778b98205, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 56
       objectReference: {fileID: 0}
     - target: {fileID: 2004411618170591462, guid: b2e918cb29a359141ac639d778b98205, type: 3}
       propertyPath: m_Pivot.x
@@ -5794,7 +5794,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -8100,7 +8100,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1908725115
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8381,7 +8381,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1731297910842264341, guid: 8ed044fd13c6a7b4a826e7ba7f4e2f1b, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 55
       objectReference: {fileID: 0}
     - target: {fileID: 2004411618170591462, guid: 8ed044fd13c6a7b4a826e7ba7f4e2f1b, type: 3}
       propertyPath: m_Pivot.x
@@ -9506,7 +9506,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2129676035
 RectTransform:
   m_ObjectHideFlags: 0

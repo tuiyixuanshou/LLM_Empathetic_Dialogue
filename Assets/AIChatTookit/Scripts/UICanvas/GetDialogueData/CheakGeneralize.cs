@@ -37,11 +37,7 @@ public class CheakGeneralize : MonoBehaviour
                 oldDialogueAmount = AIData.tempDialogue.Count;
                 LastTime = DateTime.Now;
             }
-            
-
-            yield return new WaitForSeconds(10f);
-
-
+            yield return new WaitForSeconds(30f);
         }
     }
 }
