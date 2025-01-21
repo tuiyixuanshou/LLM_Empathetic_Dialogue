@@ -60,7 +60,7 @@ public class BaiduTTS : MonoBehaviour
     }
     #endregion
 
-    [Header("test")]
+    [Header("ÉùÒô²¥·Å")]
     public Text text;
     public Button button;
     public AudioSource m_AudioSource;

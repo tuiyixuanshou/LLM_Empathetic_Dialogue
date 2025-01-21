@@ -26,16 +26,23 @@ public class WhisperContorller : MonoBehaviour
     public Button InputButton;
     public InputField inputField;
 
+    [Header("输送辨别声音")]
+    public sendData data;
+
     private bool isPress;
     private float holdTimeThreshold = 0.2f;
     private float holdTime = 0f;
+
+    private void Awake()
+    {
+        inputField.gameObject.SetActive(true);
+        InputButton.gameObject.SetActive(false);
+    }
 
     void Start()
     {
         Debug.Log("start");
         StartButton.onClick.AddListener(delegate { SwitchInputButton(); });
-        inputField.gameObject.SetActive(true);
-        InputButton.gameObject.SetActive(false);
         //        changetext.text = "wait...";
 
         //whisper set
@@ -62,8 +69,10 @@ public class WhisperContorller : MonoBehaviour
         //    text += $"\n\nLanguage: {res.Language}";
 
         Debug.Log(text);
-//        //接下来将这个text发送给千帆
-//        //SenttoChat(text);
+
+        data.GetTextAndClear(text);
+        //接下来将这个text发送给千帆
+        //SenttoChat(text);
     }
 
     public void RecordStart()

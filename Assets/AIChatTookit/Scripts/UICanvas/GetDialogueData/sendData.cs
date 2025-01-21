@@ -25,7 +25,9 @@ public class sendData : MonoBehaviour
     public Text HeadName;
     //public Sprite HeadImage;
     public Sprite AIHeadImage;
-
+    [Header("声音播放")]
+    public bool isSpeech;
+    public sendSpeech speech;
     [Header("对话模型")]
     public AIModel aiModel;
 
@@ -148,17 +150,24 @@ public class sendData : MonoBehaviour
         Debug.Log("调用On End");
     }
 
+
     //用户输入回车键之后调用
-    public void GetTextAndClear()
+    public void GetTextAndClear(string text)
     {
         Debug.Log("GetText");
-        userInputText = UserInputField.text;
+        if (UserInputField.gameObject.activeSelf)
+        {
+            userInputText = UserInputField.text;
+        }
+        else
+        {
+            userInputText = text;
+        }
         Debug.Log(userInputText);
         if (userInputText != "总结" && userInputText != null)
         {
             UserInputField.text = string.Empty;
             CreatBubble(CurUserName, userInputText, true, UserHead);
-
             //模型选择
             switch (aiModel)
             {
@@ -396,6 +405,12 @@ public class sendData : MonoBehaviour
             };
             tempDialogue.Add(responseMessage);
             CreatBubble(CurAIName, responseJson, false, AIHeadImage);
+
+            if (isSpeech)
+            {
+                speech.baiduTTS.Speak(responseJson, speech.PlayAudio);
+            }
+
         }
         isAIRun = false;
         HeadName.text = CurAIName;
