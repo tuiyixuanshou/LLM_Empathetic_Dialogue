@@ -32,7 +32,8 @@ public class Settings:Singleton<Settings>
 public enum AIModel
 {
     Ollama_Local_Llama3_1,
-    Silicon_Llama_3_3_70B
+    Silicon_Llama_3_3_70B,
+    Deepseek_chat
 }
 
 

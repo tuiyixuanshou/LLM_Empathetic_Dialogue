@@ -9,6 +9,7 @@ public class sendSpeech : MonoBehaviour
 
     [Header("²¥·ÅÄÚÈİ")]
     public BaiduTTS baiduTTS;
+    public OpenAITTS openAITTS;
 
 
     public void PlayAudio(AudioClip clip, string text)

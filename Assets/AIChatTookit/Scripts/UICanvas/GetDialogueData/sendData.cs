@@ -43,6 +43,10 @@ public class sendData : MonoBehaviour
     private string apiKey = "sk-cjktrxbohzgcvvcgkeppefasertnysxdmerrowgadqkciews";
     private string SystemPre;
 
+    [Header("DeepSeek API")]
+    [SerializeField]private string DeepSeekapiKey = "sk-149b5103c4604ee7bc39cf7c620ba00c";
+    [SerializeField]private string DeepSeekapiUrl = "https://api.deepseek.com/v1/chat/completions";
+
     //玩家输入的内容
     private string userInputText;
     //AI回复内容承接
@@ -115,6 +119,7 @@ public class sendData : MonoBehaviour
                         你的名字叫做{CurAIName}，
                         你的是性格是{settings.AICharacter},
                         这是你们之间对话中，发生的能够让用户感到快乐、悲伤或其他鲜明情绪的大事{DialogueEventjson}
+                        只生成对话内容，不要生成其他提示词。
                         请基于上述的姓名、性格特质和共同记忆，回复下面用户的话：";
         //选择生成初始路径模型
         //SendDaily(dailyPrompt, dailyPreprompt);
@@ -176,6 +181,9 @@ public class sendData : MonoBehaviour
                     break;
                 case AIModel.Silicon_Llama_3_3_70B:
                     SendToChatSilicon(userInputText, SystemPre);
+                    break;
+                case AIModel.Deepseek_chat:
+                    SendChattoDeepseek(userInputText, SystemPre);
                     break;
                 default:
                     SendToChatSilicon(userInputText, SystemPre);
@@ -408,7 +416,93 @@ public class sendData : MonoBehaviour
 
             if (isSpeech)
             {
-                speech.baiduTTS.Speak(responseJson, speech.PlayAudio);
+                //speech.baiduTTS.Speak(responseJson, speech.PlayAudio);
+                speech.openAITTS.Speak(responseJson, speech.PlayAudio);
+            }
+
+        }
+        isAIRun = false;
+        HeadName.text = CurAIName;
+    }
+
+    private void SendChattoDeepseek(string prompt,string pre)
+    {
+        if (string.IsNullOrEmpty(prompt))
+            return;
+        if (!isAIRun)
+        {
+            //添加system预设
+            if (tempDialogue.Count == 0)
+            {
+                var preMessage = new Dictionary<string, string>
+                {
+                    {"role","system" },
+                    {"content", pre }
+                };
+                tempDialogue.Add(preMessage);
+            }
+            // 构造消息内容
+            var newmessage = new Dictionary<string, string>
+            {
+                {"role","user" },
+                {"content", prompt }
+            };
+            tempDialogue.Add(newmessage);
+
+            var payload = new
+            {
+                model = "deepseek-chat",
+                messages = tempDialogue,
+            };
+            string jsonPayload = JsonConvert.SerializeObject(payload, Formatting.Indented);
+            StartCoroutine(postRequestDeepSeekChat(DeepSeekapiUrl, jsonPayload));
+        }
+        else
+        {
+            CreatBubble(CurAIName, "请稍等，我还在回复上一条信息~", false, AIHeadImage);
+        }
+    }
+
+    IEnumerator postRequestDeepSeekChat(string url,string json)
+    {
+        isAIRun = true;
+        HeadName.text = "对方正在输入……";
+        var uwr = new UnityWebRequest(url, "POST");
+        byte[] jsonToSend = new System.Text.UTF8Encoding().GetBytes(json);
+        uwr.uploadHandler = (UploadHandler)new UploadHandlerRaw(jsonToSend);
+        uwr.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+        uwr.SetRequestHeader("Content-Type", "application/json");
+        uwr.SetRequestHeader("Authorization", "Bearer " + DeepSeekapiKey);
+
+        //Send the request then wait here until it returns
+        yield return uwr.SendWebRequest();
+
+        if (uwr.result != UnityWebRequest.Result.Success)
+        {
+            Debug.Log("Error While Sending: " + uwr.error);
+        }
+        else
+        {
+            Debug.Log("Received: " + uwr.downloadHandler.text);
+            _response = uwr.downloadHandler.text;
+            //retrieve response from the JSON
+            ApiSilicion apiResponse = JsonUtility.FromJson<ApiSilicion>(_response);
+            //Debug.Log(apiResponse.choices[0].message.content);
+            string responseJson = apiResponse.choices[0].message.content;
+            Debug.Log(responseJson);
+            //将获得的回复也加入到tempDialogue中：
+            var responseMessage = new Dictionary<string, string>
+            {
+                {"role","assistant" },
+                {"content", responseJson }
+            };
+            tempDialogue.Add(responseMessage);
+            CreatBubble(CurAIName, responseJson, false, AIHeadImage);
+
+            if (isSpeech)
+            {
+                //speech.baiduTTS.Speak(responseJson, speech.PlayAudio);
+                speech.openAITTS.Speak(responseJson, speech.PlayAudio);
             }
 
         }
@@ -674,6 +768,28 @@ public class sendData : MonoBehaviour
         public string content;
     }
     #endregion
+
+    //#region DeepSeek回复解析实例
+    //[System.Serializable]
+    //private class DeepSeekResponse
+    //{
+    //    public Choice[] choices;
+    //}
+
+    //[System.Serializable]
+    //private class Choice
+    //{
+    //    public Message message;
+    //}
+    //[System.Serializable]
+    //private class Message
+    //{
+    //    public string role;
+    //    public string content;
+    //}
+    //#endregion
+
+
 
     #region 总结解析实例
     [System.Serializable]

@@ -67,7 +67,7 @@ public class BaiduTTS : MonoBehaviour
 
     private void Start()
     {
-        button.onClick.AddListener(delegate { Speak(text.text, PlayAudio); });
+        //button.onClick.AddListener(delegate { Speak(text.text, PlayAudio); });
     }
     private void PlayAudio(AudioClip clip,string text)
     {
