@@ -3,10 +3,30 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class SqurralInteract : MonoBehaviour
 {
     public float moveSpeed;
+    public GameObject PosLeft;
+    public GameObject PosRight;
+    public GameObject PosMiddle;
+
+    public Button buttonLeft;
+    public Button buttonRight;
+    public Button buttonMiddle;
+
+    public Button buttonJump;
+
+    public Animator AvatorAnimator;
+
+    private void Start()
+    {
+        buttonLeft.onClick.AddListener(delegate { MoveToSetUpPosition("Left"); });
+        buttonRight.onClick.AddListener(delegate { MoveToSetUpPosition("Right"); });
+        buttonMiddle.onClick.AddListener(delegate { MoveToSetUpPosition("Middle"); });
+        buttonJump.onClick.AddListener(delegate { SetAction("Jump"); });
+    }
     void Update()
     {
         // 检测是否有触摸输入
@@ -29,7 +49,7 @@ public class SqurralInteract : MonoBehaviour
                         Debug.Log("Avatar was touched!");
                         //OnAvatarTouched();
                         //ChangePosition();
-                        CreatBubble(Settings.Instance.AIName, "别动我啦！" , false, null);
+                        //CreatBubble(Settings.Instance.AIName, "别动我啦！" , false, null);
                     }
                 }
             }
@@ -52,8 +72,50 @@ public class SqurralInteract : MonoBehaviour
     {
         newPosition = GetRandomPositionInScreen();
         Debug.Log(newPosition);
-        StartCoroutine(moveToRandom(newPosition));
+        StartCoroutine(moveToTarget(newPosition));
         //transform.position = newPosition;
+    }
+
+    public void MoveToSetUpPosition(string ButtonName)
+    {
+        switch (ButtonName)
+        {
+            case "Left":
+                StartCoroutine(moveToTarget(PosLeft.transform.position));
+                break;
+            case "Right":
+                StartCoroutine(moveToTarget(PosRight.transform.position));
+                break;
+            case "Middle":
+                StartCoroutine(moveToTarget(PosMiddle.transform.position));
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void SetAction(string ButtonName)
+    {
+        AvatorAnimator.SetFloat("PlayCount", 0);
+        switch (ButtonName)
+        {
+            case "Jump":
+                AvatorAnimator.SetTrigger("Jump");
+                return;
+            case "Greet":
+                AvatorAnimator.SetTrigger("Greet");
+                return;
+            default:
+                return;
+        }
+    }
+
+    //AnimaEvent
+    public void AnimaEventPlayCountPlus()
+    {
+        float PlayCount = AvatorAnimator.GetFloat("PlayCount");
+        PlayCount++;
+        AvatorAnimator.SetFloat("PlayCount", PlayCount);
     }
 
     Vector3 GetRandomPositionInScreen()
@@ -67,14 +129,15 @@ public class SqurralInteract : MonoBehaviour
         return worldPosition;
     }
 
-    IEnumerator moveToRandom(Vector3 target)
+    IEnumerator moveToTarget(Vector3 target)
     {
+        AvatorAnimator.SetBool("isMoving", true);
         while (Vector3.Distance(transform.position, target) > 0.01f)
         {
             transform.position = Vector3.MoveTowards(transform.position, target, moveSpeed * Time.deltaTime);
             yield return null;
         }
         transform.position = target;
-
+        AvatorAnimator.SetBool("isMoving", false);
     }
 }

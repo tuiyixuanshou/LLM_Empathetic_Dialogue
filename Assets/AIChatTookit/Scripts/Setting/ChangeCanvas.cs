@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -34,6 +35,7 @@ public class ChangeCanvas : MonoBehaviour
         StartCoroutine(LoadFade(targetCanvas));
     }
 
+   
     IEnumerator LoadFade(Canvas targetCanvas)
     {
         yield return LoadFadeIn();
@@ -44,15 +46,17 @@ public class ChangeCanvas : MonoBehaviour
         }
         yield return new WaitForSeconds(1f);
 
+
         yield return LoadFadeOut();
     }
 
-    IEnumerator LoadFadeIn()
+    //´¿ºÚÆÁ³öÏÖ
+    public IEnumerator LoadFadeIn()
     {
         canvasGroup.alpha = 0;
         LoadingCanvas.gameObject.SetActive(true);
         float a = canvasGroup.alpha;
-        while (a < 0.9f)
+        while (a < 0.8f)
         {
             a += 0.05f;
             canvasGroup.alpha = a;
@@ -61,11 +65,12 @@ public class ChangeCanvas : MonoBehaviour
         canvasGroup.alpha = 1;
     }
 
-    IEnumerator LoadFadeOut()
+    //´¿ºÚÆÁÀë¿ª
+    public IEnumerator LoadFadeOut()
     {
         canvasGroup.alpha = 1;
         float b = canvasGroup.alpha;
-        while (b > 0.05f)
+        while (b > 0.2f)
         {
             b -= 0.05f;
             canvasGroup.alpha = b;
@@ -112,4 +117,5 @@ public class ChangeCanvas : MonoBehaviour
 
 
     }
+
 }

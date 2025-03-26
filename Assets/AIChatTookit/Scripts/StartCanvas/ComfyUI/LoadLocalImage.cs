@@ -21,6 +21,7 @@ public class LoadLocalImage : MonoBehaviour
         }
     }
 
+
     void LoadImageFile(string path)
     {
         string[] pathes = Directory.GetFiles(path);

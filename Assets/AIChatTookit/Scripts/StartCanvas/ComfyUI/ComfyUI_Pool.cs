@@ -45,8 +45,24 @@ public class ComfyUI_Pool : MonoBehaviour
         Debug.Log(AllJson);
         StartCoroutine(PostRequest(url, AllJson));
     }
+
+    public string EnvironmentSetBackGround(string Pprompt,string Nprompt)
+    {
+        string positive = @"only the environment,reserving a piece of space in front of which you can stand.
+                            "+ Pprompt;
+        string negative = @"rmark,people,animal,other image"+
+                            Nprompt;
+        jsonTextDatas[0].inputs.text = positive;
+        jsonTextDatas[1].inputs.text = negative;
+        AllJson = jsonHead +
+            "\"14\":" + JsonUtility.ToJson(jsonTextDatas[0]) + "," +  //6:positiv Prompt
+            "\"15\":" + JsonUtility.ToJson(jsonTextDatas[1]) + "}}";  //7:negative Prompt
+        Debug.Log(AllJson);
+        //StartCoroutine(PostRequest(url, AllJson));
+        return AllJson;
+    }
     
-    static IEnumerator PostRequest(string url,string json)
+    public IEnumerator PostRequest(string url,string json)
     {
         UnityWebRequest www = new UnityWebRequest(url, UnityWebRequest.kHttpVerbPOST);
         DownloadHandler downloadHandler = new DownloadHandlerBuffer();

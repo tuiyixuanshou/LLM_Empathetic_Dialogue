@@ -31,7 +31,7 @@ public class OpenAITTS : MonoBehaviour
     private void Start()
     {
         Debug.Log("openAI");
-        button.onClick.AddListener(delegate { Speak(text.text, PlayAudio); });
+        //button.onClick.AddListener(delegate { Speak(text.text, PlayAudio); });
     }
 
     public void Speak(string text,Action<AudioClip,string> callback)

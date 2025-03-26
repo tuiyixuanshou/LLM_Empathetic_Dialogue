@@ -1,0 +1,29 @@
+[
+    {
+        "scene_name":"index_record",
+        "frist_image":"-1",
+        "discribtion":"-1",
+        "vedioLinks":[]
+    },
+    {
+        "scene_name":"coffee_shop",
+        "frist_image":"C:\\Users\\TF\\Desktop\\defualt_Image.txt",
+        "discribtion":"生成参考图中的小动物在咖啡馆中，动物面前有一个桌子，桌子上有咖啡和蛋糕，动物坐在一个和桌子配套的椅子上，背后是柜台，柜台下有透明的展示柜，柜子里整理拜访各种三角型的蛋糕。",
+        "vedioLinks":[
+            "Assets/AIChatTookit/Video/avatar/Coffee/coffee_HUG_1.mp4",
+            "Assets/AIChatTookit/Video/avatar/Coffee/凭空咖啡2.mp4",
+            "Assets/AIChatTookit/Video/avatar/Coffee/摇头晃脑1.mp4"
+        ]
+    },
+    {
+        "scene_name":"InDoor_Sofa",
+        "frist_image":"C:\\Users\\TF\\Desktop\\InRoomStatic.txt",
+        "discribtion":"生成参考图中的小动物坐在窗边沙发上，边上有一个木质的茶几，茶几上放着散发热气的蜂蜜牛奶杯，窗外是淅沥的雨幕打在老式玻璃窗上，室内有暖黄色落地灯照亮后面架子上的复古地球仪和堆叠的绘本，木地板上散落着软垫，墙角的老式收音机正播放着黑胶唱片。",
+        "vedioLinks":[
+            "Assets/AIChatTookit/Video/avatar/InRoom/in_Room_Default1.mp4",
+            "Assets/AIChatTookit/Video/avatar/InRoom/in_Room_Default2.mp4",
+            "Assets/AIChatTookit/Video/avatar/InRoom/in_Room_Default3.mp4"
+        ]
+    }
+
+]

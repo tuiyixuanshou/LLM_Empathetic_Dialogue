@@ -30,6 +30,7 @@ public class sendData : MonoBehaviour
     public sendSpeech speech;
     [Header("对话模型")]
     public AIModel aiModel;
+    public TTSs tts;
 
 
     //LLM
@@ -65,7 +66,7 @@ public class sendData : MonoBehaviour
     [TextArea(10,5)]
     public string dailyPrompt;
     [TextArea(10, 5)]
-    public string dailyPreprompt = "你扮演的角色是一个治愈形象松鼠小精灵，可以拟人化，但是需要基于松鼠的基本特效来生成下面的日程内容";
+    public string dailyPreprompt = "你扮演的角色是一个治愈形象松鼠小精灵，可以拟人化，但是需要基于松鼠的基本特性来生成下面的日程内容";
 
     [TextArea(10, 5)]
     [Header("事件总结Prompt")]
@@ -417,7 +418,8 @@ public class sendData : MonoBehaviour
             if (isSpeech)
             {
                 //speech.baiduTTS.Speak(responseJson, speech.PlayAudio);
-                speech.openAITTS.Speak(responseJson, speech.PlayAudio);
+                //speech.openAITTS.Speak(responseJson, speech.PlayAudio);
+                speech.SpeakFunction(tts, responseJson);
             }
 
         }
@@ -502,7 +504,8 @@ public class sendData : MonoBehaviour
             if (isSpeech)
             {
                 //speech.baiduTTS.Speak(responseJson, speech.PlayAudio);
-                speech.openAITTS.Speak(responseJson, speech.PlayAudio);
+                //speech.openAITTS.Speak(responseJson, speech.PlayAudio);
+                speech.SpeakFunction(tts, responseJson);
             }
 
         }

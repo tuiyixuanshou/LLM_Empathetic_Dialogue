@@ -29,7 +29,7 @@ public class chatGPT : LLM
             " 接下来是我的提问：" + _msg;
 
 
-        StartCoroutine(Request(message, _callback));
+        //StartCoroutine(Request(message, _callback));
     }
 
     /// <summary>
@@ -38,7 +38,7 @@ public class chatGPT : LLM
     /// <param name="_postWord"></param>
     /// <param name="_callback"></param>
     /// <returns></returns>
-    private IEnumerator Request(string _postWord, System.Action<string> _callback)
+    private IEnumerator RequestGPT(string _postWord, System.Action<string> _callback)
     {
         using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
         {

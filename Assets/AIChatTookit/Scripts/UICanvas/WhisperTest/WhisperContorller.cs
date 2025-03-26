@@ -35,12 +35,16 @@ public class WhisperContorller : MonoBehaviour
 
     private void Awake()
     {
-        inputField.gameObject.SetActive(true);
-        InputButton.gameObject.SetActive(false);
+        //inputField.gameObject.SetActive(true);
+        //InputButton.gameObject.SetActive(false);
     }
 
     void Start()
     {
+        
+        //inputField.gameObject.SetActive(true);
+        //InputButton.gameObject.SetActive(false);
+
         Debug.Log("start");
         StartButton.onClick.AddListener(delegate { SwitchInputButton(); });
         //        changetext.text = "wait...";
@@ -86,13 +90,4 @@ public class WhisperContorller : MonoBehaviour
         if (microphoneRecord.IsRecording)
             microphoneRecord.StopRecord();
     }
-
-    //    private void OnNewSegment(WhisperSegment segment)
-    //    {
-    //        if (!streamSegments)
-    //            return;
-
-    //        _buffer += segment.Text;
-    //        changetext.text = _buffer + "OnNew";
-    //    }
 }
