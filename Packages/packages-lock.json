@@ -226,6 +226,32 @@
       },
       "url": "https://packages.unity.cn"
     },
+    "com.uralstech.ucloud.operations": {
+      "version": "file:com.uralstech.ucloud.operations",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.uralstech.utils.singleton": "1.2.1",
+        "com.unity.nuget.newtonsoft-json": "3.2.1",
+        "com.unity.modules.unitywebrequest": "1.0.0"
+      }
+    },
+    "com.uralstech.ugemini": {
+      "version": "file:com.uralstech.ugemini",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.uralstech.utils.singleton": "1.0.1",
+        "com.uralstech.ucloud.operations": "1.1.4",
+        "com.unity.nuget.newtonsoft-json": "3.2.1"
+      }
+    },
+    "com.uralstech.utils.singleton": {
+      "version": "file:com.uralstech.utils.singleton",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.whisper.unity": {
       "version": "https://github.com/Macoron/whisper.unity.git?path=/Packages/com.whisper.unity",
       "depth": 0,

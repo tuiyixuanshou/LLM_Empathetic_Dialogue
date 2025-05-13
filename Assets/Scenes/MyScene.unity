@@ -1199,6 +1199,7 @@ RectTransform:
   - {fileID: 1053989727}
   - {fileID: 1782780767}
   - {fileID: 1390802475}
+  - {fileID: 367847198}
   m_Father: {fileID: 988842906}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -2437,6 +2438,54 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 362315105}
   HistoryPanel: {fileID: 2124649275}
+--- !u!1 &367847196
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 367847198}
+  - component: {fileID: 367847197}
+  m_Layer: 0
+  m_Name: Memory
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &367847197
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 367847196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fa4202c12f5df74da4fdeb2fb970cc8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!224 &367847198
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 367847196}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 208889001}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &379652644
 GameObject:
   m_ObjectHideFlags: 0
@@ -11222,13 +11271,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c2e5c4db3b69e54e8554033d1b673e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  reader: {fileID: 1467385920}
   api_CentralControl: {fileID: 208889003}
   settings: {fileID: 1467385917}
+  memory_control: {fileID: 367847197}
   bubbleControl: {fileID: 988842910}
   AI_Driven: {fileID: 1053989730}
+  shareMomentControl: {fileID: 1053989731}
   Mchat_Model: 1
   Mchat_url: 0
   Mchat_api: 0
+  Mreason_Model: 4
+  Mreason_url: 2
+  Mreason_api: 2
   inputField: {fileID: 104956990}
   ButtonRoot: {fileID: 888275951}
   button1: {fileID: 0}
@@ -15164,14 +15219,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   settings: {fileID: 1467385917}
   reader: {fileID: 1467385920}
+  api_CentralControl: {fileID: 208889003}
   MainLine_Model: 4
   MainLine_url: 2
   MainLine_api: 2
+  Mchat_Model: 1
+  Mchat_url: 0
+  Mchat_api: 0
   MomentIndex: 0
   IS_Unexpect: 1
   World_Objects:
   - event_index: 2
     Event: "\u8BFB\u4E66\u5468\u5230\u4E86\uFF0C\u5B66\u6821\u653E\u5047\u4E00\u5468\u3002"
+  User_Objects: []
+  shareMomentDetail:
+    User_Event: 
+    Plan: 
+    World_Plan: 
+    Unexpect: 
+    Decision: 
+    Scene_Decision: 
   MainStory: {fileID: 1053989730}
 --- !u!1 &1063722788
 GameObject:

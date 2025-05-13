@@ -1,0 +1,74 @@
+{
+  "name": "com.uralstech.ugemini",
+  "displayName": "UGemini",
+  "description": "UGemini: A Unity C# wrapper for the Google Gemini API.\n\nUGemini v2.0.0 contains many breaking changes. Please check the online documentation or the reference manual included with the package (located in the [package-location]/Documentation~/ folder) for the change list.",
+  "keywords": [
+    "API",
+    "Google",
+    "Gemini",
+    "AI",
+    "Integration"
+  ],
+  "version": "2.2.0",
+  "unity": "2022.3",
+  "hideInEditor": false,
+  "documentationUrl": "https://uralstech.github.io/UGemini/",
+  "changelogUrl": "https://github.com/Uralstech/UGemini/releases",
+  "licensesUrl": "https://github.com/Uralstech/UGemini/blob/master/LICENSE",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "repository": "https://github.com/Uralstech/UGemini.git"
+  },
+  "author": {
+    "name": "Udayshankar Ravikumar",
+    "url": "https://github.com/Uralstech"
+  },
+  "samples": [
+    {
+      "displayName": "Mult-turn Chat",
+      "description": "A sample scene showing a multi-turn chat system.",
+      "path": "Samples~/SimpleMultiTurnChatSample"
+    },
+    {
+      "displayName": "Function Calling",
+      "description": "A sample scene showing a function calling system.",
+      "path": "Samples~/FunctionCallingSample"
+    },
+    {
+      "displayName": "Streaming Generated Content",
+      "description": "A sample showing a system which streams Gemini's responses, including function calls.",
+      "path": "Samples~/StreamedFunctionCallingSample"
+    },
+    {
+      "displayName": "Prompting with File API",
+      "description": "A sample scene with a system to create, delete, retrieve, list and prompt Gemini with files stored in the File/Media API endpoints.",
+      "path": "Samples~/FileAPISample"
+    },
+    {
+      "displayName": "Question Answering",
+      "description": "A sample scene with a system where Gemini answers questions based only on the given context.",
+      "path": "Samples~/QuestionAnsweringSample"
+    },
+    {
+      "displayName": "JSON Response",
+      "description": "A sample scene showing a system where Gemini responds in a specified JSON format.",
+      "path": "Samples~/JSONResponseSample"
+    },
+    {
+      "displayName": "List and Get Model Metadata",
+      "description": "A sample scene with a system to list, get and chat with models using the models.get and models.list endpoints.",
+      "path": "Samples~/ModelMetadataRetrievalSample"
+    },
+    {
+      "displayName": "Token Counting",
+      "description": "A sample scene showing a token counting system using the \"countTokens\" endpoint.",
+      "path": "Samples~/TokenCounterSample"
+    }
+  ],
+  "dependencies": {
+    "com.uralstech.utils.singleton": "1.0.1",
+    "com.uralstech.ucloud.operations": "1.1.4",
+    "com.unity.nuget.newtonsoft-json": "3.2.1"
+  }
+}

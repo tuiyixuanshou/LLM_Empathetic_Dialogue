@@ -7,6 +7,9 @@ using UnityEngine.UI;
 using System.IO;
 using MyUtilities;
 using static SunoAPIDemo;
+using static UnityEditor.Progress;
+using static ShareMomentControl;
+using static AvatarMainStoryDemoV2;
 
 
 public class API_Chat : MonoBehaviour
@@ -18,10 +21,18 @@ public class API_Chat : MonoBehaviour
 
     public AvaterBubbleControl bubbleControl;
     public AvatarMainStoryDemoV2 AI_Driven;
+
+    public ShareMomentControl shareMomentControl;
+
     [Header("chat模型设置")]
     public ChatModel Mchat_Model;
     public LLMURL Mchat_url;
     public APIKey Mchat_api;
+
+    [Header("推理模型设置")]
+    public ChatModel Mreason_Model;
+    public LLMURL Mreason_url;
+    public APIKey Mreason_api;
 
     public InputField inputField;
     public GameObject ButtonRoot;
@@ -33,8 +44,10 @@ public class API_Chat : MonoBehaviour
 
     private Coroutine CheckDialogueThreshold = null;
 
-    //上下文维护
+    //用于检测事件的、本轮对话的记录
     List<Dictionary<string, string>> AChat_Dial = new();
+
+    private Dictionary<string, string> SystemPrompt;
 
     private void Start()
     {
@@ -45,19 +58,18 @@ public class API_Chat : MonoBehaviour
         string saveDialogueEvent = Application.dataPath + "/DialogueEvent.json";
         string DialogueEventjson = File.ReadAllText(saveDialogueEvent);
 
+        SystemPrompt = new Dictionary<string, string> { { "role", "system" }, { "content", null } }; //SystemPrompt
         reader.LoadFile("System_Prompt.json", Add_SystemPrompt);
-
         //Mchat_API_Send("用户当前情绪较为平稳但存在未表达的情感，睡眠问题可能暗示潜在压力");
     }
 
     void Add_SystemPrompt(string prompt)
     {
-        var newmmessage = new Dictionary<string, string>
+        SystemPrompt = new Dictionary<string, string>
         {
             {"role","system" },
             {"content",prompt }
         };
-        AChat_Dial.Add(newmmessage);
     }
 
     public void UserInputSend()
@@ -70,7 +82,7 @@ public class API_Chat : MonoBehaviour
 
             settings.LastInputTime = DateTime.Now; //更新用户最后输入时间
             string text = inputField.text;
-            Mchat_API_FreePrompt(text, true, Mchat_Model, Mchat_url, Mchat_api); //进行反馈  
+            Mchat_API_FreePrompt(text, false, Mchat_Model, Mchat_url, Mchat_api); //进行反馈  
             inputField.text = string.Empty;
             bubbleControl.UserSendInput(); //关闭对方气泡
         }
@@ -126,25 +138,71 @@ public class API_Chat : MonoBehaviour
     }
     #endregion
 
-    public void Mchat_API_FreePrompt(string m_prompt,bool isUserText,ChatModel model,LLMURL url, APIKey api)
+    /// <summary>
+    /// 被动回复对话
+    /// </summary>
+    /// <param name="m_prompt"></param>
+    /// <param name="isUserText"></param>
+    /// <param name="model"></param>
+    /// <param name="url"></param>
+    /// <param name="api"></param>
+    public void Mchat_API_FreePrompt(string m_prompt,bool isProactive,ChatModel model,LLMURL url, APIKey api)
     {
         if (!PostWeb.isAIRun)
         {
             PostWeb.isAIRun = true;
             string Jsonpayload = string.Empty;
-
-           
-            var usermessage = new Dictionary<string, string>
+            List<Dictionary<string, string>> cur_message = new();
+            cur_message.Add(SystemPrompt);
+            foreach (var item in memory_control.shortMemory)
             {
-                {"role","user"},
-                {"content",m_prompt}
-            };
+                cur_message.Add(item);
+            }
+            //Agent所在场景输入
+            string prompt = $@"你的计划：{shareMomentControl.shareMomentDetail.Plan}
+你面临的突发事件：{shareMomentControl.shareMomentDetail.Unexpect}
+你面对的真实世界时间：{shareMomentControl.shareMomentDetail.World_Plan}
+你面对的重大用户事件：{shareMomentControl.shareMomentDetail.User_Event}
+你最后做出的活动决策：{shareMomentControl.shareMomentDetail.Decision}
+你此时所在的场景：{shareMomentControl.shareMomentDetail.Scene_Decision}
+根据上述信息背景信息来生成你的回复。请注意，你们之间的互动更加类似线上互动，包含分享、建议、倾诉等。";
 
-            settings.tempDialogue.Add(usermessage);
+            var systemmessage = new Dictionary<string, string>
+            {
+                {"role","system"},
+                {"content",prompt}
+            };
+            cur_message.Add(systemmessage);
+
+            if (!isProactive)
+            {
+                //被动回复，prompt是用户输入的话
+                var usermessage = new Dictionary<string, string>
+                {      
+                    {"role","user"},
+                    {"content",m_prompt}
+                };
+                AChat_Dial.Add(usermessage);  //只有本轮对话内容，用于事件检测
+                cur_message.Add(usermessage); //近期的20条对话+SystemPrompt，用于维护上下文
+                memory_control.AddToShortMemory(usermessage); //近期的20条对话，用户存储短期记忆
+            }
+            else
+            {
+                //主动发起，还是system提示消息
+                string SYS_prompt = "请根据最终你的活动决策、所在场景，并参考其他提供的信息，生成主动给用户发起的聊天内容。";
+                var usermessage = new Dictionary<string, string>
+                {
+                    {"role","user"},
+                    {"content",SYS_prompt}
+                };
+                cur_message.Add(usermessage);
+            }
+            
+
             var payload = new
             {
                 model = settings.m_SetModel(model),
-                messages = settings.tempDialogue,
+                messages = cur_message,
                 stream = false,
             };
             Jsonpayload = JsonConvert.SerializeObject(payload);
@@ -165,7 +223,7 @@ public class API_Chat : MonoBehaviour
             DateTime now = DateTime.Now;
             userdifference = now - settings.LastInputTime;
             responddifference = now - settings.LastRespondTime;
-            if(userdifference.TotalSeconds>=120 && responddifference.TotalSeconds >= 120)
+            if(userdifference.TotalSeconds>=100 && responddifference.TotalSeconds >= 100)
             {
                 Debug.Log("Dialouge is over,and Respond Gap =" + responddifference.TotalSeconds);
                 break;
@@ -183,6 +241,7 @@ public class API_Chat : MonoBehaviour
         CheckDialogueThreshold = null;
         api_CentralControl.isDialogueStart = false; //正常对话结束
         api_CentralControl.isSystemAwake = false;
+        AEvent_detector(); //对对话进行检验
     }
 
     /// <summary>
@@ -206,18 +265,58 @@ public class API_Chat : MonoBehaviour
             CheckDialogueThreshold = StartCoroutine(CheckThreshold(FreshCorountine));
         }
 
-        //将获得的回复也加入到tempDialogue中：
         var responseMessage = new Dictionary<string, string>
         {
             {"role","assistant" },
             {"content", respond }
         };
-        settings.tempDialogue.Add(responseMessage);
+        AChat_Dial.Add(responseMessage);
+        memory_control.AddToShortMemory(responseMessage);
+        
 
         //展示有表情包的回复，但是需要rag一下表情包
         bubbleControl.SetUpAvatarBubble(respond);
 
         Debug.Log("This is Passive chat CallBack");
+    }
+
+    public void AEvent_detector()
+    {
+        string result = ListString.ListToString(AChat_Dial, ", ", dictionary =>
+        {
+            var keyValuePairs = new List<string>();
+            foreach (var kvp in dictionary)
+            {
+                keyValuePairs.Add($"{kvp.Key}={kvp.Value}");
+            }
+            return string.Join(", ", keyValuePairs); // 将键值对用 ", " 连接
+        });
+        Debug.Log("开始进行事件探索");
+        string prompt = $@"您将收到一段对话,您需要总结用户的是否出现身体不适状况或重大挫折导致的情绪问题,只输出您的总结。
+具体来说,您需要根据对话内容,推理和分析对话中用户是否表达出有身体不适、重大挫折的情绪问题等，从对话中逐步思考,然后继续推理答案。
+若是没有类似的问题，请返回：暂无问题。
+收到的消息对话：{result}";
+        List<Dictionary<string, string>> curList = new();
+        var newmmessage = new Dictionary<string, string>
+        {
+            {"role","user" },
+            {"content",prompt }
+        };
+        curList.Add(newmmessage);
+        var payload = new
+        {
+            model = settings.m_SetModel(Mreason_Model),
+            messages = curList,
+            stream = false
+        };
+        string Jsonpayload = JsonConvert.SerializeObject(payload);
+        StartCoroutine(PostWeb.postRequest(settings.m_SetUrl(Mreason_url), settings.m_SetApi(Mreason_api), Jsonpayload, AEvent_detector_CallBack));
+    }
+
+    void AEvent_detector_CallBack(string text)
+    {
+        AChat_Dial.Clear();
+        shareMomentControl.AddUser_Objects(text);
     }
 
     /// <summary>
@@ -375,12 +474,20 @@ public class API_Chat : MonoBehaviour
 
             settings.LastInputTime = DateTime.Now; //更新用户最后输入时间
             string text = ButtonText;
-            Mchat_API_FreePrompt(text, true, Mchat_Model, Mchat_url, Mchat_api); //进行反馈  
+            Mchat_API_FreePrompt(text, false, Mchat_Model, Mchat_url, Mchat_api); //进行反馈  
             bubbleControl.UserSendInput(); //关闭对方气泡
 
             //更加健壮的callback
             callback?.Invoke();
         }
+    }
+
+
+    [Serializable]
+    public class Event_Object
+    {
+        public int event_index;
+        public string Event;
     }
 
     [Serializable]
