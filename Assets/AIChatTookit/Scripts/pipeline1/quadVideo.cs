@@ -9,6 +9,9 @@ using UnityEngine.Video;
 
 public class quadVideo : MonoBehaviour
 {
+    public Settings settings;
+    public ChangeCanvas changeCanvas;
+    public bool isStartPlayVideo = false;   //控制一次事件开始
     public VideoPlayer videoPlayer;  // Video Player 组件
     public VideoPlayer videoPlayer2;  // Video Player 组件
     public Transform quadTransform;  // Quad 的 Transform
@@ -23,15 +26,17 @@ public class quadVideo : MonoBehaviour
     public VideoClip[] videoClips;
 
     public M_Scene cur_Scene;
+    //public string cur_scene_name;
+    private Scene_Recording scene;
 
-    public List<string> videoURLs;
+    public List<string> curvideoURLs;
 
     public List<string> coffeeURLs;
 
     public List<string> inRoomURLs;
 
 
-    void Start()
+     IEnumerator Start()
     {
         // TO DO: Start这一块还是需要重新设置一下
 
@@ -39,21 +44,26 @@ public class quadVideo : MonoBehaviour
         //videoPlayer.Play();
         //videoPlayer = gameObject.AddComponent<VideoPlayer>();
         //videoPlayer2 = gameObject.AddComponent<VideoPlayer>();
+
+        changeCanvas.canvasGroup.alpha = 1f;
+
         videoPlayer2.gameObject.SetActive(false); // 初始时隐藏第二个 
         // 适配屏幕
         AdjustQuadSize(quadTransform);
         AdjustQuadSize(quadTransform2);
-
+        yield return new WaitUntil(() => isStartPlayVideo);
         //RandomPlayVideo();
+        yield return ChangePlayVideo2_URL(true);
+        yield return changeCanvas.LoadFadeOut();
     }
 
     private void Update()
     {
-        if (timer <= TimeGap)
+        if (timer <= TimeGap && isStartPlayVideo)
         {
             timer += Time.deltaTime;
         }
-        else
+        else if(isStartPlayVideo)
         {
             Debug.Log("选择播放新视频");
             timer = 0;
@@ -68,7 +78,9 @@ public class quadVideo : MonoBehaviour
     /// <param name="newVedioUrl"></param>
     public void RespondToM_Action(string newVedioUrl)
     {
-        videoURLs.Add(newVedioUrl);
+        //curvideoURLs.Add(newVedioUrl);
+        //TO DO:同步到改场景的List中。 3.31已完成
+        settings.Scenes_Dict[settings.CurSceneName].Video_Links.Add(newVedioUrl);
         timer = 0;
         TimeGap = UnityEngine.Random.Range(10, 21);
         StartCoroutine(ChangePlayVideo2_URL(false));
@@ -132,7 +144,11 @@ public class quadVideo : MonoBehaviour
 
     public IEnumerator ChangePlayVideo2_URL(bool isRandom)
     {
-        videoURLs = SetSceneURLs();
+        scene = null;
+        settings.Scenes_Dict.TryGetValue(settings.CurSceneName, out scene);
+        //TO DO:这里需要搞一下如果scene为null怎么办。
+        curvideoURLs = scene.Video_Links;
+
         VideoPlayer current = videoPlayer;
         VideoPlayer next = videoPlayer2;
         Vector3 newPosition = videoPlayer.transform.position;
@@ -144,14 +160,14 @@ public class quadVideo : MonoBehaviour
         int index;
         if (isRandom)
         {
-            index = UnityEngine.Random.Range(0, videoURLs.Count);
+            index = UnityEngine.Random.Range(0, curvideoURLs.Count);
         }
         else
         {
             //新动作增加之后播放新动作
-            index = videoURLs.Count - 1;
+            index = curvideoURLs.Count - 1;
         }
-        next.url = videoURLs[index];
+        next.url = curvideoURLs[index];
         next.gameObject.SetActive(true);
         next.Prepare();
         yield return new WaitUntil(() => next.isPrepared);

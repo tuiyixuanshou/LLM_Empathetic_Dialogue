@@ -29,7 +29,7 @@ public class KLingAPIDemo : MonoBehaviour
     public string accessKey;
 
     private string default_imageUrl = "Assets\\AIChatTookit\\Video\\avatar\\小动物静态.png";
-    private string ImageBase64;
+    public string ImageBase64;
 
     private string cur_Task_ID;
     private string cur_Vedio_URL;
@@ -65,7 +65,7 @@ public class KLingAPIDemo : MonoBehaviour
                         你的是性格是{settings.AICharacter},
                         这是你们之间对话中，发生的能够让用户感到快乐、悲伤或其他鲜明情绪的大事{DialogueEventjson}，
                         回复不要过长，符合日常聊天的模式。";
-    
+        //StartCoroutine(checkTaskList());
     //TO DO:默认照片需要修改，修改成当场的照片，其他内容也需要存储到文本中
     //mageBase64 = ReadDefaultImage("C:\\Users\\TF\\Desktop\\InRoomStatic.txt");
         //prompt = "镜头必须固定不动，图中的小动物拨弄架子上的地球仪。";
@@ -110,6 +110,7 @@ public class KLingAPIDemo : MonoBehaviour
 
     IEnumerator checkTaskList()
     {
+        string jwtToken = EncodeJwtToken(accessKey, secretKey);
         yield return new WaitForSeconds(1f); // 防止瞬间请求导致Token失效
         using(UnityWebRequest request = new UnityWebRequest("https://api.klingai.com/v1/videos/image2video?pageNum=1&pageSize=30", "GET"))
         {
@@ -228,7 +229,7 @@ public class KLingAPIDemo : MonoBehaviour
             request.SetRequestHeader("Authorization", $"Bearer {jwtToken}");
 
             //读取首帧的Image（Base64或者URL）
-            ImageBase64 = ReadImageBase64();
+            //ImageBase64 = ReadImageBase64();
             // 生成 JSON 请求体
             string requestBody = JsonConvert.SerializeObject(new
             {

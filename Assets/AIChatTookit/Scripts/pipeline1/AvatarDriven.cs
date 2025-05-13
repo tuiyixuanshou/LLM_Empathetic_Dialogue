@@ -7,16 +7,19 @@ using UnityEngine.Networking;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using static SunoAPIDemo;
+using UnityEditor.PackageManager.Requests;
 
 public class AvatarDriven : MonoBehaviour
 {
     public Settings settings;
     public API_CentralControl api_CentralControl;
     public quadVideo quadvideo;
+    public String CheckUpdateURL;
     //开始进行avatar平行世界故事内容生成
     //①生成故事
     //②生成多模态内容
     //③内容记录反馈
+
     [Header("生成故事内容的模型")]
     public ChatModel Story_Model;
     public LLMURL Story_url;
@@ -34,6 +37,58 @@ public class AvatarDriven : MonoBehaviour
         //StoryGeneration();
     }
 
+
+
+
+
+    //更新查询
+    public IEnumerator CheckUpdate(Action<SourceUpdate> callback)
+    {
+        Debug.Log("开始进行Update查询：");
+        using (var request = new UnityWebRequest(CheckUpdateURL, "GET"))
+        {
+            request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+            //Queryrequest.SetRequestHeader("Content-Type", "application/json");
+            yield return request.SendWebRequest();
+            if (request.responseCode == 200)
+            {
+                SourceUpdate sourceUpdate = JsonUtility.FromJson<SourceUpdate>(request.downloadHandler.text);
+                callback(sourceUpdate);
+
+            }
+            else
+            {
+                Debug.Log("Update查询失败！");
+                SourceUpdate sourceUpdate = new SourceUpdate();
+                sourceUpdate.show = false;
+                callback(sourceUpdate);
+            }
+        }
+    }
+
+    public void CheckUpdate_CallBack(string text)
+    {
+        SourceUpdate sourceUpdate = JsonUtility.FromJson<SourceUpdate>(text);
+
+        if (sourceUpdate.show)
+        {
+            Debug.Log("进行新场景、新动作设置");
+        }
+        else
+        {
+            //暂时进行默认设置，但是后面需要做数据存储，读取上次离开时的场景数据
+            Debug.Log("暂时进行咖啡馆设置");
+        }
+
+    }
+
+
+
+
+
+    /// <summary>
+    /// 场景分管小经历的生成
+    /// </summary>
     public void StoryGeneration()
     {
         //场景判断
@@ -79,7 +134,8 @@ public class AvatarDriven : MonoBehaviour
 
     public void MultiPromptGeneration(string text)
     {
-        string prompt = $@"你现在是一个经验丰富的AIGCprompt的撰写者，你也有丰富的心理学经验。现在，你需要根据提供的故事内容，生成多模态回复的prompt。
+        string prompt = $@"你现在是一个经验丰富的AIGCprompt的撰写者，你也有丰富的心理学经验。
+现在，你需要根据提供的故事内容，生成多模态回复的prompt。
 故事如下：{text}。
 你需要生成文字、动作两方面的回复。文字回复的要求：符合这个故事内容背景下，AI小动物会说的话，需要符合日常对话的形式。
 动作回复要求：思考符合这个故事内容下，AI Agent会做出的动作，动作需要合理、且幅度不大，生成可以使AIGC准确生成这段动作的prompt指令。
@@ -132,7 +188,7 @@ public class AvatarDriven : MonoBehaviour
     }
     IEnumerator func(string url, APIRespond responed)
     {
-        yield return new WaitUntil(() => !api_CentralControl.isSystemAwake);
+        yield return new WaitUntil(() => !api_CentralControl.isSystemAwake);  //防止和别的状态发生冲突
         api_CentralControl.isSystemAwake = true;
         quadvideo.RespondToM_Action(url);
         api_CentralControl.api_Chat.Mchat_API_CallBack(responed.Chat);
@@ -205,4 +261,10 @@ public class AvatarDriven : MonoBehaviour
         public string Action;
     }
     #endregion
+}
+
+[System.Serializable]
+public class SourceUpdate
+{
+    public bool show;
 }

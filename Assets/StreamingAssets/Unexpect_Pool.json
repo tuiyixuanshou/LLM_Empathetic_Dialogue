@@ -1,0 +1,68 @@
+{
+  "生理必需活动": [
+    { "valence": "正面", "description": "偶然早起精神饱满" },
+    { "valence": "负面", "description": "熬夜刷剧到凌晨、第二天精神恍惚" },
+    { "valence": "中性", "description": "宿舍停水，临时去朋友寝室洗澡，计划被打断" },
+    { "valence": "正面", "description": "健身途中结识新朋友" },
+    { "valence": "负面", "description": "深夜外卖吃坏肚子，影响第二天考试" },
+    { "valence": "中性", "description": "睡过头错过早饭，但顺势多睡补觉" },
+    { "valence": "正面", "description": "临时心情大好，动手做了一顿丰盛晚餐" },
+    { "valence": "中性", "description": "洗衣机被抢占排队耗时，打乱日程" },
+    { "valence": "负面", "description": "突发感冒或过敏需请病假" }
+  ],
+  "学习培训": [
+    { "valence": "正面", "description": "教授临时举办专题讲座，收获科研启发" },
+    { "valence": "负面", "description": "忘记交作业被扣分" },
+    { "valence": "中性", "description": "课程临时换教室导致迟到" },
+    { "valence": "正面", "description": "临时参与编程比赛获奖" },
+    { "valence": "负面", "description": "小测突袭毫无准备，失常发挥" },
+    { "valence": "中性", "description": "实验课程仪器故障，课堂调整为理论讲解" },
+    { "valence": "正面", "description": "论文被教授当作范例展示" },
+    { "valence": "中性", "description": "自习突遇断电，只能提前离开" },
+    { "valence": "负面", "description": "图书馆闭馆时间变更，借阅受阻" }
+  ],
+  "自由支配活动": [
+    { "valence": "正面", "description": "朋友临时喊你去看展，收获美学灵感" },
+    { "valence": "负面", "description": "社交聚会气氛尴尬，与朋友产生误会" },
+    { "valence": "中性", "description": "打球时突下大雨，只能窝在体育馆聊天" },
+    { "valence": "正面", "description": "路过摄影展意外走进去，被作品打动" },
+    { "valence": "负面", "description": "玩桌游时被误解规则，尴尬收场" },
+    { "valence": "中性", "description": "社团活动取消，获得意外自由时间" },
+    { "valence": "正面", "description": "临时加入快闪活动，体验独特校园氛围" },
+    { "valence": "负面", "description": "游戏服务器维护延迟，错失开服奖励" },
+    { "valence": "正面", "description": "去操场散步碰巧遇上烟花表演" }
+  ],
+  "无酬劳动": [
+    { "valence": "正面", "description": "志愿服务中获得奖项与校领导合影" },
+    { "valence": "负面", "description": "被强制安排替值班，占用备考时间" },
+    { "valence": "中性", "description": "布展设备临时故障，全组赶工修复" },
+    { "valence": "正面", "description": "社团帮忙过程中被学长赏识推荐岗位" },
+    { "valence": "负面", "description": "志愿服务人手不足，一人承担多项任务压力大" },
+    { "valence": "中性", "description": "活动推迟一天，改变原本周末计划" },
+    { "valence": "正面", "description": "社团拉你主持活动，锻炼了临场表达" },
+    { "valence": "中性", "description": "社团场地临时冲突，活动被压缩时间" },
+    { "valence": "负面", "description": "公益路演临时上台演讲，内容准备不足" }
+  ],
+  "有酬劳动": [
+    { "valence": "正面", "description": "临时接到高薪家教，提升收入与教学能力" },
+    { "valence": "负面", "description": "面试迟到错过机会" },
+    { "valence": "中性", "description": "被临时安排顶班，学习时间被挤压" },
+    { "valence": "正面", "description": "兼职过程中客户追加打赏与推荐" },
+    { "valence": "负面", "description": "外卖单被差评，影响评分" },
+    { "valence": "中性", "description": "实习被调岗到新部门，重新适应流程" },
+    { "valence": "正面", "description": "原定项目被转为长期合作，带来稳定收入" },
+    { "valence": "负面", "description": "临时客户爽约，白跑一趟" },
+    { "valence": "中性", "description": "店铺突发促销活动，兼职延迟下班" }
+  ],
+  "交通活动": [
+    { "valence": "正面", "description": "地铁上偶遇学长，被引荐进心仪社团" },
+    { "valence": "负面", "description": "台风天封路，考试无法参加" },
+    { "valence": "中性", "description": "校车停运，只能步行回寝室" },
+    { "valence": "正面", "description": "误搭车误入景点区，意外开启放松一日游" },
+    { "valence": "负面", "description": "骑车摔倒受伤，耽误当日课程" },
+    { "valence": "中性", "description": "等车时间过长，在站台翻完一本书" },
+    { "valence": "正面", "description": "打车过程中司机推荐实习岗位" },
+    { "valence": "中性", "description": "路遇施工改道，骑行时间加倍" },
+    { "valence": "负面", "description": "地铁丢失钱包，补卡过程繁琐" }
+  ]
+}

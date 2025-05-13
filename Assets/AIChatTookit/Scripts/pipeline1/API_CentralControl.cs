@@ -7,12 +7,12 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
-using static evaluateTest;
 using static sendData;
 
 public class API_CentralControl : MonoBehaviour
 {
     public Settings settings;
+    public quadVideo quad;
     public RAG_TempDialogue rag;
     [Header("多模态接口")]
     public evaluateTest evaluate;
@@ -20,9 +20,13 @@ public class API_CentralControl : MonoBehaviour
     public KLingAPIDemo api_Action;
     public SunoAPIDemo api_Sound;
     public API_Scene api_Scene;
+    public Emoji_Control api_Demo_Emoji;
+    public AvatarDriven api_AvatarDriven;
 
 
     [Header("流程控制")]
+    public bool isAgentStart; //打开程序时 3.31还没用
+
     public bool isDialogueStart;  //是否在进行对话 被动发起 系统主动发起，都算
 
     public bool isMultiRespondStart; //多模态选择是否开始 
@@ -36,13 +40,30 @@ public class API_CentralControl : MonoBehaviour
     private TimeSpan LastSystemRespond = TimeSpan.Zero;
 
 
-    private void Start()
+    private IEnumerator Start()
     {
+
         if (isSystemAwake)
         {
             evaluate.GenerateEvaluate();
         }
         settings.LastRespondTime = DateTime.Now;
+        yield return api_AvatarDriven.CheckUpdate(GetSourceUpadate);
+    }
+
+    void GetSourceUpadate(SourceUpdate source)
+    {
+        if (source.show)
+        {
+            Debug.Log("进行新场景、新动作设置");
+        }
+        else
+        {
+            //暂时进行默认设置，但是后面需要做数据存储，读取上次离开时的场景数据
+            Debug.Log("暂时进行咖啡馆设置");
+            settings.CurSceneName = "coffee_shop";
+            quad.isStartPlayVideo = true;
+        }
     }
 
     private void Update()
@@ -51,7 +72,7 @@ public class API_CentralControl : MonoBehaviour
         //每十分钟开始一次心理测评
         if (LastSystemRespond.TotalMinutes >= 1000 && !isDialogueStart && !isMultiRespondStart && !isEvaluateStart && !isSystemAwake)
         {
-            isSystemAwake = true;
+            isSystemAwake = true;       //这里的SystemAwake 
             Debug.Log("自动开始心理状态评估：");
             //TO DO ：这里看下是直接测评还是 分析长短记忆
 
@@ -70,9 +91,9 @@ public class API_CentralControl : MonoBehaviour
         //4、KL生成视频的首帧读取。听从quadvideo里面的cur_scene,但是视频读取需要类中的（Dictionary查找）首帧
         //5、API_Scene：修改cur_scene即可。
 
-        //rag做一下，python端的连线  记忆到达上限后
+        //rag做一下，python端的连线  记忆到达上限后  做好了
 
-        //用可灵生成一下表情包--->明天或者后天
+        //用可灵生成一下表情包--->明天或者后天  没生成，但是做了rag
 
         //流程图改进一下
     }

@@ -8,11 +8,19 @@ public class SignalBubbleText : MonoBehaviour
     public Text text;
     public Image image;
 
+    public Image EmojiImage;
+
     public float textmargin;
 
     public float maxWidth;
 
     public float gapSpacing;
+
+    public float EmojiMargin = 180f;
+
+    public float OriHeight;
+    public float OriWidth;
+
     private void Start()
     {
         RectTransform rect = text.GetComponent<RectTransform>();
@@ -32,13 +40,16 @@ public class SignalBubbleText : MonoBehaviour
 
         if (curWidth < maxWidth)
         {
+            float imagecurHeight = curHeight + textmargin * 2 + gapSpacing > OriHeight ? curHeight + textmargin * 2 + gapSpacing : OriHeight;
+            float imagecurWeight = curWidth + textmargin * 2 + EmojiMargin > OriWidth ? curWidth + textmargin * 2 + EmojiMargin : OriWidth;
             image.rectTransform.sizeDelta
-                = new Vector2(curWidth+ textmargin*2, curHeight+ textmargin * 2+gapSpacing);
+                = new Vector2(imagecurWeight, imagecurHeight);
             //text.rectTransform.sizeDelta = new Vector2(curWidth, curHeight);
         }
         else
         {
-            image.rectTransform.sizeDelta = new Vector2(maxWidth+textmargin * 2, curHeight + textmargin * 2+ gapSpacing);
+            float imagecurHeight = curHeight + textmargin * 2 + gapSpacing > OriHeight ? curHeight + textmargin * 2 + gapSpacing : OriHeight;
+            image.rectTransform.sizeDelta = new Vector2(maxWidth+textmargin * 2+ EmojiMargin, imagecurHeight);
         }
     }
 }

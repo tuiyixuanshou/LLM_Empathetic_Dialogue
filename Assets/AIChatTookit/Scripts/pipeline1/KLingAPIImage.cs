@@ -67,6 +67,7 @@ public class KLingAPIImage : MonoBehaviour
     {
         if (File.Exists(filePath))
         {
+            Debug.Log("以加载图片");
             // 使用File.ReadAllText方法读取文件内容
             string fileContent = File.ReadAllText(filePath);
             return fileContent;
@@ -131,7 +132,7 @@ public class KLingAPIImage : MonoBehaviour
 
         StartCoroutine(ActionPromptGen(Action_Chat, chat_CallBack));
 
-        yield return GenerateImage();
+        //yield return GenerateImage();
         yield return new WaitForSeconds(0.5f);
         Mchat_API_CallBack(cur_Chat);
     }
@@ -193,7 +194,7 @@ public class KLingAPIImage : MonoBehaviour
         }
     }
 
-    IEnumerator GenerateImage()
+    public IEnumerator GenerateImage(Action<string> callback)
     {
         string jwtToken = EncodeJwtToken(accessKey, secretKey);
         yield return new WaitForSeconds(1f); // 防止瞬间请求导致Token失效
@@ -203,15 +204,19 @@ public class KLingAPIImage : MonoBehaviour
             // 设置请求头
             request.SetRequestHeader("Content-Type", "application/json");
             request.SetRequestHeader("Authorization", $"Bearer {jwtToken}");
-
+            ImageBase64 = ReadDefaultImage("C:\\Users\\TF\\Desktop\\avatar.txt");
             // 生成 JSON 请求体
             string requestBody = JsonConvert.SerializeObject(new
             {
                 model_name = "kling-v1-5",              
                 //image = ImageBase64,
                 prompt = prompt,
+                negative_prompt = "模糊不清，抽象，恐怖谷，恐怖",
+                image = ImageBase64,
+                image_reference = "subject",
+                image_fidelity = 0.9f,
                 n = 1,
-                aspect_ratio = "1:1"
+                aspect_ratio = "9:16"
             });
             Debug.Log(prompt);
 
@@ -234,13 +239,13 @@ public class KLingAPIImage : MonoBehaviour
             {
                 Debug.Log("Response: " + request.downloadHandler.text);
                 cur_Task_ID = JsonConvert.DeserializeObject<KlingBackWait>(request.downloadHandler.text).data.task_id;
-                yield return Auto_CheckCurTask(cur_Task_ID);
+                yield return Auto_CheckCurTask(cur_Task_ID,callback);
             }
         }
     }
 
     //进行自动查询
-    IEnumerator Auto_CheckCurTask(string Take_ID)
+    IEnumerator Auto_CheckCurTask(string Take_ID,Action<string> callback)
     {
         string jwtToken = EncodeJwtToken(accessKey, secretKey);
         string new_URL = "https://api.klingai.com/v1/images/generations/" + Take_ID;
@@ -277,12 +282,12 @@ public class KLingAPIImage : MonoBehaviour
             Debug.Log(cur_respond);
             cur_Image_URL = JsonConvert.DeserializeObject<KlingBackRead>(cur_respond).data.task_result.images[0].url;
             Debug.Log(cur_Image_URL);
-            //quadvideo.RespondToM_Action(cur_Image_URL);
+            callback(cur_Image_URL);
         }
         else
         {
             Debug.Log("图片查询时遇到问题！");
-        }
+        }  
 
        
     }
@@ -300,7 +305,7 @@ public class KLingAPIImage : MonoBehaviour
         {
             { "iss", accessKey },
             { "exp", currentTime + 1800 }, // 30分钟后过期
-            { "nbf", currentTime - 5 }     // 5秒前生效
+            { "nbf", currentTime - 30 }     // 5秒前生效
         };
 
         string headerBase64 = Base64UrlEncode(JsonConvert.SerializeObject(header));

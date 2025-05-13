@@ -16,11 +16,15 @@ public class ChangeCanvas : MonoBehaviour
     public Canvas DialogueCanvas;
     public Canvas StartCanvas;
 
-    private CanvasGroup canvasGroup;
+    public CanvasGroup canvasGroup;
+    private void Awake()
+    {
+
+    }
 
     private void Start()
     {
-        canvasGroup = LoadingCanvas.GetComponent<CanvasGroup>();
+        //canvasGroup = LoadingCanvas.GetComponent<CanvasGroup>();
     }
 
     public void CanvasChange(Canvas targetCanvas)

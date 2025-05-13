@@ -56,7 +56,8 @@ public class RAG_TempDialogue : MonoBehaviour
         //TO DO:单个用户时没有关系，当有多个用户时，需要添加用户识别ID用于查找其Vector库
         var payload = new
         {
-            text = Json
+            text = Json,
+            name = "user"
         };
         string Jsonpayload = JsonConvert.SerializeObject(payload);
         StartCoroutine(postEmbed(Jsonpayload));
@@ -87,7 +88,8 @@ public class RAG_TempDialogue : MonoBehaviour
         {
             var payload = new
             {
-                query = question
+                query = question,
+                name = "user"
             };
             string Jsonpayload = JsonConvert.SerializeObject(payload);
             byte[] jsonToSend = new System.Text.UTF8Encoding().GetBytes(Jsonpayload);
@@ -102,6 +104,7 @@ public class RAG_TempDialogue : MonoBehaviour
             else
             {
                 Debug.Log("查询失败！");
+                callback("null");
             }
         }
     }

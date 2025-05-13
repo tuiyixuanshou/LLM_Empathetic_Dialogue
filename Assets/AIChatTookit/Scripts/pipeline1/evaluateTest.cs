@@ -206,7 +206,7 @@ chat¶Ô»°£¬¼ÌĞøÓÃÓïÑÔÀ´°²Î¿ÓÃ»§£»action¶¯×÷£¬×ö³öÒ»Ğ©¶¯×÷À´°²Î¿ÓÃ»§£»soundÉùÒô£¬Í
         //ÕâÀïĞèÒªÖØĞÂ¿¼ÂÇ Ìí¼ÓÒ»¶ÎsystemÌáÊ¾´ÊÔÚtempdialogueÖĞ¡£
         if (isStartEvaluate)
         {
-            if (!avaterBubble.AvatarBubble.activeInHierarchy)  //if¿´ÏÂÄÜ²»ÄÜºÍisDialogueStart¹Ò¹³¡£
+            if (!avaterBubble.AvatarBubbleWithEmoji.activeInHierarchy)  //if¿´ÏÂÄÜ²»ÄÜºÍisDialogueStart¹Ò¹³¡£
             {
                 //½áÊøĞ¯³Ì
                 if (askEvaluateCoroutine != null)

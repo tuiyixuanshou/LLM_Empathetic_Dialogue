@@ -5,26 +5,29 @@ using UnityEngine.UI;
 
 public class AvaterBubbleControl : MonoBehaviour
 {
-    public GameObject AvatarBubble;
+    public GameObject AvatarBubbleWithEmoji;
     public Text AvatarBubbleText;
+
+    public Image AvatarBubbleImage;
+
     private float timer;
     public float CompeletBubbleStay = 60f;
     private void Start()
     {
-        AvatarBubbleText = AvatarBubble.GetComponentInChildren<Text>();
+        AvatarBubbleText = AvatarBubbleWithEmoji.GetComponentInChildren<Text>();
         AvatarBubbleText.text = string.Empty;
-        AvatarBubble.SetActive(false);
+        AvatarBubbleWithEmoji.SetActive(false);
     }
 
     private void Update()
     {
         //控制Bubble自动关闭
-        if (AvatarBubble.activeInHierarchy && !m_WriteState)
+        if (AvatarBubbleWithEmoji.activeInHierarchy && !m_WriteState)
         {
             timer += Time.deltaTime;
             if(timer> CompeletBubbleStay)
             {
-                AvatarBubble.SetActive(false);
+                AvatarBubbleWithEmoji.SetActive(false);
                 timer = 0;
             }
         }
@@ -38,23 +41,28 @@ public class AvaterBubbleControl : MonoBehaviour
     public void SetUpAvatarBubble(string msg)
     {
         AvatarBubbleText.text = string.Empty;
-        if (!AvatarBubble.activeInHierarchy)
+        if (!AvatarBubbleWithEmoji.activeInHierarchy)
         {
-            AvatarBubble.SetActive(true);
+            AvatarBubbleWithEmoji.SetActive(true);
         }
         StartTypeWords(msg);
+    }
+
+    public void SetEmoji(Sprite sprite)
+    {
+        AvatarBubbleImage.sprite = sprite;
     }
 
     //用户输入了内容，avatar气泡直接消失
     public void UserSendInput()
     {
-        AvatarBubble.SetActive(false);
+        AvatarBubbleWithEmoji.SetActive(false);
     }
 
     //逐字显示的时间间隔
     [SerializeField] private float m_WordWaitTime = 0.1f;
     //是否显示完成
-    [SerializeField] private bool m_WriteState = false;
+    [SerializeField] public bool m_WriteState = false;
     private void StartTypeWords(string msg)
     {
         if (msg == "")
