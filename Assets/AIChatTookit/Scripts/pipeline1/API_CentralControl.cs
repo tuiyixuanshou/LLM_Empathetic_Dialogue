@@ -23,6 +23,8 @@ public class API_CentralControl : MonoBehaviour
     public Emoji_Control api_Demo_Emoji;
     public AvatarDriven api_AvatarDriven;
 
+    public ImageCreatBridge api_ImageCreat;  //图片生成
+
 
     [Header("流程控制")]
     public bool isAgentStart; //打开程序时 3.31还没用

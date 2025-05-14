@@ -24,7 +24,47 @@ namespace Uralstech.UGemini.Samples
     
         private GeminiRole _senderRole = GeminiRole.User;
         private bool _settingSystemPrompt = false;
-    
+
+
+        [SerializeField] private RawImage _outputImage; // UI 显示图像
+        public async void OnGenerateImageFromTextAndImage()
+        {
+            string prompt = _chatInput.text.Trim();
+            if (string.IsNullOrEmpty(prompt))
+            {
+                Debug.LogError("请输入提示词");
+                return;
+            }
+
+            var imagePart = _uploadedData.FirstOrDefault(p => p.InlineData != null)?.InlineData;
+            if (imagePart == null)
+            {
+                Debug.LogError("请先上传一张图像");
+                return;
+            }
+
+            byte[] imageBytes = Convert.FromBase64String(imagePart.Data);
+
+            var request = new GeminiImageGenerationRequest(prompt, imageBytes);
+            var response = await GeminiManager.Instance.Request<GeminiChatResponse>(request);
+
+            string base64Image = response.Candidates[0].Content.Parts
+                .FirstOrDefault(p => p.InlineData != null)?.InlineData?.Data;
+
+            if (!string.IsNullOrEmpty(base64Image))
+            {
+                byte[] imageData = Convert.FromBase64String(base64Image);
+                Texture2D texture = new Texture2D(2, 2);
+                texture.LoadImage(imageData);
+                _outputImage.texture = texture;
+                Debug.Log("图像生成成功！");
+            }
+            else
+            {
+                Debug.LogWarning("未收到图像数据");
+            }
+        }
+
         public void SetRole(int role)
         {
             if (role > (int)GeminiRole.ToolResponse)

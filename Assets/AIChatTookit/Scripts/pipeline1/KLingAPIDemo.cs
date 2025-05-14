@@ -69,7 +69,7 @@ public class KLingAPIDemo : MonoBehaviour
     //TO DO:默认照片需要修改，修改成当场的照片，其他内容也需要存储到文本中
     //mageBase64 = ReadDefaultImage("C:\\Users\\TF\\Desktop\\InRoomStatic.txt");
         //prompt = "镜头必须固定不动，图中的小动物拨弄架子上的地球仪。";
-        //StartCoroutine(GenerateVideo());
+        StartCoroutine(GenerateVideo("打招呼动作", AutoBroadCallBack));
         //StartCoroutine(checkSingleTask());
         //StartCoroutine(checkTaskList());
     }
@@ -234,8 +234,9 @@ public class KLingAPIDemo : MonoBehaviour
             string requestBody = JsonConvert.SerializeObject(new
             {
                 model_name = "kling-v1-6",
-                image = ImageBase64,
-                image_tail = ImageBase64,
+                //image = ImageBase64,
+                image = default_imageUrl,
+                image_tail = default_imageUrl,
                 prompt = prompt,
                 cfg_scale = 0.85,
                 mode = "pro"

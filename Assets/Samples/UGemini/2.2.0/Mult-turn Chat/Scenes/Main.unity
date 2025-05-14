@@ -1893,7 +1893,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 082da32aa2c5b8243bfe608ff858f579, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _geminiApiKey: 
+  _geminiApiKey: AIzaSyA5nlleCaC5feFUTmp6Y4dS_Yk4Q4T9jIM
 --- !u!1 &1103524871
 GameObject:
   m_ObjectHideFlags: 0
@@ -2824,6 +2824,78 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1584544044}
   m_CullTransparentMesh: 1
+--- !u!1 &1603158212
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1603158215}
+  - component: {fileID: 1603158214}
+  - component: {fileID: 1603158213}
+  m_Layer: 5
+  m_Name: RawImage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1603158213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1603158212}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Texture: {fileID: 0}
+  m_UVRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+--- !u!222 &1603158214
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1603158212}
+  m_CullTransparentMesh: 1
+--- !u!224 &1603158215
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1603158212}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2034809436}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -373.10385, y: 724.6426}
+  m_SizeDelta: {x: 584.5117, y: 840.2522}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1605100055
 GameObject:
   m_ObjectHideFlags: 0
@@ -3107,7 +3179,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 47.773865}
+  m_AnchoredPosition: {x: 0, y: 47.773926}
   m_SizeDelta: {x: -61.900024, y: -154.76001}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1882780197
@@ -3815,6 +3887,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2039438488}
+  - {fileID: 1603158215}
   m_Father: {fileID: 358267560}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
@@ -3865,20 +3938,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2034809438}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2068947955}
-        m_TargetAssemblyTypeName: Uralstech.UGemini.Samples.MultiTurnChatManager,
-          Assembly-CSharp
-        m_MethodName: OnChat
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &2034809438
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4321,6 +4381,7 @@ GameObject:
   - component: {fileID: 2068947952}
   - component: {fileID: 2068947951}
   - component: {fileID: 2068947955}
+  - component: {fileID: 2068947956}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -4429,6 +4490,23 @@ MonoBehaviour:
   _chatInput: {fileID: 1923353888}
   _chatMessages: {fileID: 1440692369}
   _chatMessagePrefab: {fileID: 3676421507575360625, guid: 615151dab7c24584ca950cf81f5408f7, type: 3}
+  _outputImage: {fileID: 1603158213}
+--- !u!114 &2068947956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2068947950}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65793987d9d15cd4ca56482615663c85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  promptInput: {fileID: 1923353888}
+  outputImage: {fileID: 1603158213}
+  sendButton: {fileID: 2034809437}
+  serverUrl: http://localhost:5000/generate-image
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

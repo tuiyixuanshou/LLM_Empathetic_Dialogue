@@ -169,9 +169,19 @@ public class ShareMomentControl : MonoBehaviour
     {
         Debug.Log("事件索引：" + MomentIndex + "场景描述:" + text);
         shareMomentDetail.Scene_Decision = text;
-        api_CentralControl.api_Chat.Mchat_API_FreePrompt("", true, Mchat_Model, Mchat_url, Mchat_api);
+
+        //进行一些多模态的反馈内容，可以用异步操作
+        //这里会包含不同的视频生成内容。
+        //新图的生成由后台人工完成
+
+        StartCoroutine(ShareMoment_ImageCreat(text));
+
+
+
+        
     }
 
+    //对话结束后进行调用
     public void AddUser_Objects(string text)
     {
         User_Objects.Add(new Event_Object
@@ -181,6 +191,16 @@ public class ShareMomentControl : MonoBehaviour
         });
     }
 
+
+    IEnumerator ShareMoment_ImageCreat(string prompt)
+    {
+        yield return api_CentralControl.api_ImageCreat.SendPrompt(prompt);
+        yield return api_CentralControl.api_ImageCreat.CheckImageStatusRepeatedly();
+
+
+        //最后进行对话展示
+        api_CentralControl.api_Chat.Mchat_API_FreePrompt("", true, Mchat_Model, Mchat_url, Mchat_api);
+    }
 
 
     [Serializable]
