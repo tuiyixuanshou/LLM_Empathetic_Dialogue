@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -7,7 +8,10 @@ using UnityEngine.UI;
 
 public class ImageCreatBridge : MonoBehaviour
 {
+    public Settings settings;
     public float checkInterval = 5f;
+
+    private string scene_string;
 
     /// <summary>
     /// 给后台发送prompt
@@ -16,6 +20,7 @@ public class ImageCreatBridge : MonoBehaviour
     /// <returns></returns>
     public IEnumerator SendPrompt(string prompt)
     {
+        scene_string = prompt;
         string json = $"{{\"prompt\": \"{prompt}\"}}";
         byte[] jsonBytes = Encoding.UTF8.GetBytes(json);
 
@@ -57,7 +62,7 @@ public class ImageCreatBridge : MonoBehaviour
                     Debug.Log("图片已就绪！");
                     //        // 你可以在这里调用下载图片的函数
                     //        FindObjectOfType<ImageReceiver>().GetImageFromServer();
-                    StartCoroutine(GetImage());
+                    yield return GetImage();
                 }
                 else
                 {
@@ -68,10 +73,12 @@ public class ImageCreatBridge : MonoBehaviour
             {
                 Debug.Log("轮询失败: " + request.error);
             }
-
+            
             yield return new WaitForSeconds(checkInterval);
         }
+        imageReady = false;
     }
+    
     public RawImage displayImage;
     //获取图片
     private IEnumerator GetImage()
@@ -86,11 +93,22 @@ public class ImageCreatBridge : MonoBehaviour
             Texture2D tex = DownloadHandlerTexture.GetContent(request);
             // 将Texture2D应用到RawImage组件
             displayImage.texture = tex;
+            //转发Image Base64
+            string base64Image = TextureToBase64(tex);
+            Debug.Log("增加场景字典:");
+            settings.Add_Scene(scene_string, base64Image);
+            Debug.Log("生成新场景中的第一个视频");
         }
         else
         {
             Debug.LogError("Failed to get image: " + request.error);
         }
+    }
+
+    public string TextureToBase64(Texture2D texture)
+    {
+        byte[] textureBytes = texture.EncodeToPNG();
+        return Convert.ToBase64String(textureBytes);
     }
 
 }

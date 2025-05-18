@@ -13,6 +13,8 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Rendering;
 using static sendData;
+using MyUtilities;
+using static AvatarMainStoryDemoV2;
 
 public class KLingAPIDemo : MonoBehaviour
 {
@@ -50,26 +52,28 @@ public class KLingAPIDemo : MonoBehaviour
     public LLMURL Maction_url;
     public APIKey Maction_api;
 
+    public ShareMomentControl shareMomentControl;
+
+    private SceneDetails sceneDetails;
+
 
 
     private string cur_Move = string.Empty;
     private string cur_Chat = string.Empty;
-    string PrePrompt;
+    //string PrePrompt;
+
+
 
     void Start()
     {
         string saveDialogueEvent = Application.dataPath + "/DialogueEvent.json";
         string DialogueEventjson = File.ReadAllText(saveDialogueEvent);
-        PrePrompt = $@"你现在正在扮演一个疗愈小精灵，
-                        你的名字叫做{settings.AIName}，
-                        你的是性格是{settings.AICharacter},
-                        这是你们之间对话中，发生的能够让用户感到快乐、悲伤或其他鲜明情绪的大事{DialogueEventjson}，
-                        回复不要过长，符合日常聊天的模式。";
+        
         //StartCoroutine(checkTaskList());
     //TO DO:默认照片需要修改，修改成当场的照片，其他内容也需要存储到文本中
     //mageBase64 = ReadDefaultImage("C:\\Users\\TF\\Desktop\\InRoomStatic.txt");
         //prompt = "镜头必须固定不动，图中的小动物拨弄架子上的地球仪。";
-        StartCoroutine(GenerateVideo("打招呼动作", AutoBroadCallBack));
+        //StartCoroutine(GenerateVideo("打招呼动作", AutoBroadCallBack));
         //StartCoroutine(checkSingleTask());
         //StartCoroutine(checkTaskList());
     }
@@ -216,6 +220,64 @@ public class KLingAPIDemo : MonoBehaviour
         }
     }
 
+    public void VideoPrompt(Action CallBack = null)
+    {
+        Debug.Log("开始视频prompt生成");
+       
+        string prompt = $@"主人公的活动决策是：{shareMomentControl.shareMomentDetail.Decision}
+场景和主人公描述是：{shareMomentControl.shareMomentDetail.Scene_Decision}
+请思考，若是在此场景下，根据主人公活动来生成一个五秒的视频，视频中的主体动作、光影、氛围是什么样的？简要描述
+回复内容请用Json格式
+[
+    {{
+    ""主体动作"":""内容"",
+    ""光影"":""内容"",
+    ""氛围"":""内容""
+    }}
+]
+请不要返回除Json数据以外的任何内容";
+        List<Dictionary<string, string>> curList = new();
+        var newmmessage = new Dictionary<string, string>
+        {
+            {"role","user" },
+            {"content",prompt }
+        };
+        curList.Add(newmmessage);
+        var payload = new
+        {
+            model = settings.m_SetModel(Maction_Model),
+            messages = curList,
+            stream = false
+        };
+        string Jsonpayload = JsonConvert.SerializeObject(payload);
+        StartCoroutine(PostWeb.postRequest(settings.m_SetUrl(Maction_url), settings.m_SetApi(Maction_api), Jsonpayload, VideoPrompt_CallBack));
+    }
+
+    void VideoPrompt_CallBack(string text)
+    {
+        string Json = PostWeb.JsonPatch(text);
+        try
+        {
+            Debug.Log("解析Json");
+            sceneDetails = JsonConvert.DeserializeObject<List<SceneDetails>>(Json)[0];
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError("JSON 解析失败：" + ex.Message);
+        }
+
+        string prompt = $@"
+主体:已原图中已有的白色小动物为主体
+主体动作:{sceneDetails.主体动作}。符合运动规律
+场景:保持原图中已有的场景不变
+镜头语言:保持镜头固定不变
+光影:{sceneDetails.光影}
+氛围:{sceneDetails.氛围}。环境温馨治愈。";
+        Debug.Log(prompt);
+
+        StartCoroutine(GenerateVideo(prompt, AutoBroadCallBack));
+    }
+
     public IEnumerator GenerateVideo(string prompt,Action<String> AutoCheckCallBack)
     {
         string jwtToken = EncodeJwtToken(accessKey, secretKey);
@@ -230,13 +292,14 @@ public class KLingAPIDemo : MonoBehaviour
 
             //读取首帧的Image（Base64或者URL）
             //ImageBase64 = ReadImageBase64();
+            string ImageBase64 = settings.Scenes_Dict[shareMomentControl.shareMomentDetail.Scene_Decision].First_Frame_Image;
             // 生成 JSON 请求体
             string requestBody = JsonConvert.SerializeObject(new
             {
                 model_name = "kling-v1-6",
-                //image = ImageBase64,
-                image = default_imageUrl,
-                image_tail = default_imageUrl,
+                image = ImageBase64,
+                //image = default_imageUrl,
+                image_tail = ImageBase64,
                 prompt = prompt,
                 cfg_scale = 0.85,
                 mode = "pro"
@@ -347,7 +410,16 @@ public class KLingAPIDemo : MonoBehaviour
 
     public void AutoBroadCallBack(string url)
     {
+        //视频生成完毕
+        settings.CurSceneName = shareMomentControl.shareMomentDetail.Scene_Decision;
+        if (!quadvideo.isStartPlayVideo) quadvideo.isStartPlayVideo = true;
         quadvideo.RespondToM_Action(url);
+        api_CentralControl.api_Chat.Mchat_API_FreePrompt("", true, Mchat_Model, Mchat_url, Mchat_api);
+
+        if (settings.Scenes_Dict[settings.CurSceneName].Video_Links.Count < 1)
+        {
+            VideoPrompt();
+        }
     }
 
     public static string EncodeJwtToken(string accessKey, string secretKey)
@@ -395,6 +467,14 @@ public class KLingAPIDemo : MonoBehaviour
     }
 
     #region 读取kling Json
+    [System.Serializable]
+    public class SceneDetails
+    {
+        public string 主体动作;
+        public string 光影;
+        public string 氛围;
+    }
+
     [Serializable]
     public class Data
     {

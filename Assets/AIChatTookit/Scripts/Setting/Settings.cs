@@ -119,6 +119,23 @@ public class Settings:Singleton<Settings>
         };
     }
 
+    public void Add_Scene(string scene_discribtion,string ImageBase64)
+    {
+        Scene_Recording newScene = new Scene_Recording
+        {
+            First_Frame_Image = ImageBase64,
+            Video_Links = new List<string>()
+        };
+        if (!Scenes_Dict.ContainsKey(scene_discribtion)) // Check if the scene description already exists
+        {
+            Scenes_Dict.Add(scene_discribtion, newScene);
+        }
+        else
+        {
+            Scenes_Dict[scene_discribtion] = newScene;
+        }
+    }
+
     private string ReadDefaultImage(string filePath)
     {
         if (File.Exists(filePath))

@@ -14,15 +14,15 @@
           "gpa": "3.0"
         },
         "psychological_profile": {
-          "summary":"图书馆战神",
-          "key_trait": ["笔记强迫症", "时间管理大师", "容易焦虑"],
+          "summary":"充满热情与活力，总是能带给周围人正能量，尤其擅长安慰和关心他人。",
+          "key_trait": [ "热情活泼", "同情心强", "会安慰人"],
           "MBTI": "ISTJ",
           "big_five": {
             "openness": 68, "conscientiousness": 82,
             "extraversion": 41,"agreeableness": 76,
             "neuroticism": 33
           },
-          "stress_tolerance": 0.6
+          "stress_tolerance": 0.8
         },
         "socioeconomic": {
           "hometown": "山东省","financial_tier": "middle_class",

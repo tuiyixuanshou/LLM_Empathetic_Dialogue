@@ -21,7 +21,7 @@ public class quadVideo : MonoBehaviour
 
     private float videoAspect = 9f / 16f; // 9:16 视频比例
     private float timer;
-    private float TimeGap = 10f;
+    private float TimeGap = 30f;
 
     public VideoClip[] videoClips;
 
@@ -53,7 +53,7 @@ public class quadVideo : MonoBehaviour
         AdjustQuadSize(quadTransform2);
         yield return new WaitUntil(() => isStartPlayVideo);
         //RandomPlayVideo();
-        yield return ChangePlayVideo2_URL(true);
+        //yield return ChangePlayVideo2_URL(true);
         yield return changeCanvas.LoadFadeOut();
     }
 
@@ -67,7 +67,7 @@ public class quadVideo : MonoBehaviour
         {
             Debug.Log("选择播放新视频");
             timer = 0;
-            TimeGap = UnityEngine.Random.Range(10, 21);
+            TimeGap = UnityEngine.Random.Range(25, 40);
             StartCoroutine(ChangePlayVideo2_URL(true));
         }
     }
@@ -82,7 +82,7 @@ public class quadVideo : MonoBehaviour
         //TO DO:同步到改场景的List中。 3.31已完成
         settings.Scenes_Dict[settings.CurSceneName].Video_Links.Add(newVedioUrl);
         timer = 0;
-        TimeGap = UnityEngine.Random.Range(10, 21);
+        TimeGap = UnityEngine.Random.Range(25, 40);
         StartCoroutine(ChangePlayVideo2_URL(false));
     }
     //播放视频随机

@@ -155,7 +155,7 @@ namespace MyUtilities
                 string pattern = @"\[(?:[^[\]]+|(?<open>\[)|(?<-open>\]))+(?(open)(?!))\]";
                 Match match = Regex.Match(rawText, pattern, RegexOptions.Singleline);
                 if (!match.Success) return null;
-
+                Debug.Log("提纯：" + match.Value);
                 // 再解析提取后的 JSON
                 return match.Value;
             }

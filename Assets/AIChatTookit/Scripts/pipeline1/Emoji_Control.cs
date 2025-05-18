@@ -13,6 +13,11 @@ public class Emoji_Control : MonoBehaviour
     public List<EmojiAndDesription> Emoji_List;
     public List<EmojiRAG> Emoji_rag;
 
+    private void Start()
+    {
+
+    }
+
     private void HandleDialogueList()
     {
         for(int i = 1;i< Emoji_List.Count; i++)

@@ -11,10 +11,11 @@ using Unity.Mathematics;
 
 public class AvatarMainStoryDemoV2 : MonoBehaviour
 {
-
+    public ShareMomentControl shareMomentControl;
     public Settings settings;
     public SimpleFileReader reader;
     public API_Chat api_chat;
+
     [Header("Agent上下文维护")]
     List<Dictionary<string, string>> APlan_Dial= new();
     List<Dictionary<string, string>> AEvent_Dial= new();  //外部事件生成、动态调整
@@ -58,7 +59,7 @@ public class AvatarMainStoryDemoV2 : MonoBehaviour
         APlan_Dial.Add(newmmessage);
         AEvent_Dial.Add(newmmessage);
         AUnexpect_Dial.Add(newmmessage);
-        //APlan_Target();
+        APlan_Target();
         //AEvent_Generation();
     }
 
@@ -307,6 +308,8 @@ public class AvatarMainStoryDemoV2 : MonoBehaviour
 
         //直接让他调用主动对话
         //api_chat.Avatar_ProActive_Chat();
+        Debug.Log("进行第一次share moment");
+        shareMomentControl.ShareMomentStart();
     }
 
     public void AUnexpect_Event(Action CallBack = null)

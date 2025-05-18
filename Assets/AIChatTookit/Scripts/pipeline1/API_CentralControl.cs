@@ -61,10 +61,11 @@ public class API_CentralControl : MonoBehaviour
         }
         else
         {
+            Debug.Log("暂时不进行设置");
             //暂时进行默认设置，但是后面需要做数据存储，读取上次离开时的场景数据
-            Debug.Log("暂时进行咖啡馆设置");
-            settings.CurSceneName = "coffee_shop";
-            quad.isStartPlayVideo = true;
+            //Debug.Log("暂时进行咖啡馆设置");
+            //settings.CurSceneName = "coffee_shop";
+            //quad.isStartPlayVideo = true;
         }
     }
 

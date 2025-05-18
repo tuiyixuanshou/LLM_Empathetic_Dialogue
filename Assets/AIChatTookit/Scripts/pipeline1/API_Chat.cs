@@ -165,7 +165,7 @@ public class API_Chat : MonoBehaviour
 你面对的重大用户事件：{shareMomentControl.shareMomentDetail.User_Event}
 你最后做出的活动决策：{shareMomentControl.shareMomentDetail.Decision}
 你此时所在的场景：{shareMomentControl.shareMomentDetail.Scene_Decision}
-根据上述信息背景信息来生成你的回复。请注意，你们之间的互动更加类似线上互动，包含分享、建议、倾诉等。";
+根据上述信息背景信息来生成你的回复。请注意，你们之间的互动更加类似线上互动，包含分享、建议、倾诉等。回复字数控制在60字以内.不要包含太多表情动作。";
 
             var systemmessage = new Dictionary<string, string>
             {

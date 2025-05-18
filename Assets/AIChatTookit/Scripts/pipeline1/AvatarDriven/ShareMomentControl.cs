@@ -177,8 +177,6 @@ public class ShareMomentControl : MonoBehaviour
         StartCoroutine(ShareMoment_ImageCreat(text));
 
 
-
-        
     }
 
     //对话结束后进行调用
@@ -196,10 +194,9 @@ public class ShareMomentControl : MonoBehaviour
     {
         yield return api_CentralControl.api_ImageCreat.SendPrompt(prompt);
         yield return api_CentralControl.api_ImageCreat.CheckImageStatusRepeatedly();
-
-
+        api_CentralControl.api_Action.VideoPrompt();
         //最后进行对话展示
-        api_CentralControl.api_Chat.Mchat_API_FreePrompt("", true, Mchat_Model, Mchat_url, Mchat_api);
+        //api_CentralControl.api_Chat.Mchat_API_FreePrompt("", true, Mchat_Model, Mchat_url, Mchat_api);
     }
 
 
