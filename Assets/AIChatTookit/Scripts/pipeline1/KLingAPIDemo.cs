@@ -22,6 +22,7 @@ public class KLingAPIDemo : MonoBehaviour
     public AvaterBubbleControl bubbleControl;
     public Settings settings;
     public API_CentralControl api_CentralControl;
+    public AvatarMainStoryDemoV2 MainStory;
     private string apiUrl = "https://api.klingai.com/v1/videos/text2video";
     private string apiImage2Vedio = "https://api.klingai.com/v1/videos/image2video";
     public string jwtToken; // JWT Token，通过前面的代码生成
@@ -56,8 +57,7 @@ public class KLingAPIDemo : MonoBehaviour
 
     private SceneDetails sceneDetails;
 
-
-
+    private string cur_scene;
     private string cur_Move = string.Empty;
     private string cur_Chat = string.Empty;
     //string PrePrompt;
@@ -220,12 +220,13 @@ public class KLingAPIDemo : MonoBehaviour
         }
     }
 
-    public void VideoPrompt(Action CallBack = null)
+    public void VideoPrompt(int timeIndex)
     {
-        Debug.Log("开始视频prompt生成");
-       
-        string prompt = $@"主人公的活动决策是：{shareMomentControl.shareMomentDetail.Decision}
-场景和主人公描述是：{shareMomentControl.shareMomentDetail.Scene_Decision}
+        Debug.Log("开始视频prompt生成+"+timeIndex);
+        cur_scene = shareMomentControl.Scene_Desicribe[timeIndex];
+        string prompt = $@"这是角色本周计划活动的名称：{MainStory.concreteBehaviors[timeIndex].title}
+活动的简述：{MainStory.concreteBehaviors[timeIndex].description}
+场景生成的内容：{cur_scene}
 请思考，若是在此场景下，根据主人公活动来生成一个五秒的视频，视频中的主体动作、光影、氛围是什么样的？简要描述
 回复内容请用Json格式
 [
@@ -236,6 +237,7 @@ public class KLingAPIDemo : MonoBehaviour
     }}
 ]
 请不要返回除Json数据以外的任何内容";
+        Debug.Log(prompt);
         List<Dictionary<string, string>> curList = new();
         var newmmessage = new Dictionary<string, string>
         {
@@ -267,7 +269,7 @@ public class KLingAPIDemo : MonoBehaviour
         }
 
         string prompt = $@"
-主体:已原图中已有的白色小动物为主体
+主体:已原图中已有的白色小动物为主体。不要出现其他角色。
 主体动作:{sceneDetails.主体动作}。符合运动规律
 场景:保持原图中已有的场景不变
 镜头语言:保持镜头固定不变
@@ -292,15 +294,17 @@ public class KLingAPIDemo : MonoBehaviour
 
             //读取首帧的Image（Base64或者URL）
             //ImageBase64 = ReadImageBase64();
-            string ImageBase64 = settings.Scenes_Dict[shareMomentControl.shareMomentDetail.Scene_Decision].First_Frame_Image;
+            var scene = settings.Share_Scenes_List.Find(s => s.Scene_Describe == cur_scene);
+            string ImageBase64 = tools.LoadBase64FromPath(scene.First_Frame_Image);
+
             // 生成 JSON 请求体
             string requestBody = JsonConvert.SerializeObject(new
             {
                 model_name = "kling-v1-6",
+                prompt = prompt,
                 image = ImageBase64,
                 //image = default_imageUrl,
                 image_tail = ImageBase64,
-                prompt = prompt,
                 cfg_scale = 0.85,
                 mode = "pro"
             });
@@ -410,16 +414,19 @@ public class KLingAPIDemo : MonoBehaviour
 
     public void AutoBroadCallBack(string url)
     {
+        Debug.Log("视频内容：" + url);
+        var scene = settings.Share_Scenes_List.Find(s => s.Scene_Describe == cur_scene);
+        scene.Video_Links.Add(url);
         //视频生成完毕
-        settings.CurSceneName = shareMomentControl.shareMomentDetail.Scene_Decision;
-        if (!quadvideo.isStartPlayVideo) quadvideo.isStartPlayVideo = true;
-        quadvideo.RespondToM_Action(url);
-        api_CentralControl.api_Chat.Mchat_API_FreePrompt("", true, Mchat_Model, Mchat_url, Mchat_api);
-
-        if (settings.Scenes_Dict[settings.CurSceneName].Video_Links.Count < 1)
-        {
-            VideoPrompt();
-        }
+        //settings.CurSceneName = shareMomentControl.shareMomentDetail.Scene_Decision;
+        //if (!quadvideo.isStartPlayVideo) quadvideo.isStartPlayVideo = true;
+        //quadvideo.RespondToM_Action(url);
+        //api_CentralControl.api_Chat.Mchat_API_FreePrompt("", true, Mchat_Model, Mchat_url, Mchat_api);
+        //settings.Scenes_Dict[cur_scene].Video_Links.Add(url);
+        //if (settings.Scenes_Dict[settings.CurSceneName].Video_Links.Count < 1)
+        //{
+        //    VideoPrompt();
+        //}
     }
 
     public static string EncodeJwtToken(string accessKey, string secretKey)

@@ -200,8 +200,55 @@ namespace MyUtilities
                 return string.Empty;
             }
         }
-
-        
+        public static string SaveBase64ToFile(string base64, string sceneKey, string index)
+        {
+            string filePath = Path.Combine(Application.persistentDataPath, sceneKey + $"_{index}.txt");
+            File.WriteAllText(filePath, base64);
+            Debug.Log("Base64 保存到: " + filePath);
+            return filePath;
+        }
+        public static string LoadBase64FromPath(string base64FilePath)
+        {
+            if (File.Exists(base64FilePath))
+            {
+                return File.ReadAllText(base64FilePath);
+            }
+            else
+            {
+                Debug.LogWarning("找不到Base64文件: " + base64FilePath);
+                return null;
+            }
+        }
     }
+
+    #region 生成树解析实例
+    [Serializable]
+    public class Status_Object
+    {
+        public string 时间;
+        public int 精力;
+        public int 心情;
+        public float 压力;
+        public A_S_Desire 欲望;
+    }
+    [Serializable]
+    public class A_S_Desire
+    {
+        public float 放松;
+        public float 学习;
+        public float 社交;
+        public float 运动;
+        public float 自我提升;
+    }
+
+    [System.Serializable]
+    public class A_ConcreteBehavior
+    {
+        public string title;
+        public string description;
+        public string location;
+        public float weight;
+    }
+    #endregion
 }
 

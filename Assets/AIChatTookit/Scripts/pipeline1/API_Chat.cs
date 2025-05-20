@@ -159,12 +159,7 @@ public class API_Chat : MonoBehaviour
                 cur_message.Add(item);
             }
             //Agent所在场景输入
-            string prompt = $@"你的计划：{shareMomentControl.shareMomentDetail.Plan}
-你面临的突发事件：{shareMomentControl.shareMomentDetail.Unexpect}
-你面对的真实世界时间：{shareMomentControl.shareMomentDetail.World_Plan}
-你面对的重大用户事件：{shareMomentControl.shareMomentDetail.User_Event}
-你最后做出的活动决策：{shareMomentControl.shareMomentDetail.Decision}
-你此时所在的场景：{shareMomentControl.shareMomentDetail.Scene_Decision}
+            string prompt = $@"
 根据上述信息背景信息来生成你的回复。请注意，你们之间的互动更加类似线上互动，包含分享、建议、倾诉等。回复字数控制在60字以内.不要包含太多表情动作。";
 
             var systemmessage = new Dictionary<string, string>
@@ -292,10 +287,20 @@ public class API_Chat : MonoBehaviour
             return string.Join(", ", keyValuePairs); // 将键值对用 ", " 连接
         });
         Debug.Log("开始进行事件探索");
-        string prompt = $@"您将收到一段对话,您需要总结用户的是否出现身体不适状况或重大挫折导致的情绪问题,只输出您的总结。
-具体来说,您需要根据对话内容,推理和分析对话中用户是否表达出有身体不适、重大挫折的情绪问题等，从对话中逐步思考,然后继续推理答案。
-若是没有类似的问题，请返回：暂无问题。
+        string prompt = $@"您将收到一段对话,需总结用户(user)在对话中是否出现身体不适状况或重大挫折导致的情绪问题。
+只总结user内容，从对话中逐步思考,推理答案，最后只输出总结。
+- 问题：若是用户（user）出现上述问题，返回bool值true,若无问题，返回false
+- 内容：若是出现上述问题，则用一句话概述用户问题。若无问题，返回“无”
+请用以下 JSON 结构输出：
+[
+{{
+  ""问题"": ,
+  ""内容"": ,
+}}
+]
+请不要返回除Json数据以外的任何内容
 收到的消息对话：{result}";
+
         List<Dictionary<string, string>> curList = new();
         var newmmessage = new Dictionary<string, string>
         {
@@ -316,9 +321,19 @@ public class API_Chat : MonoBehaviour
     void AEvent_detector_CallBack(string text)
     {
         AChat_Dial.Clear();
-        shareMomentControl.AddUser_Objects(text);
+        string Json = PostWeb.JsonPatch(text);
+        var user_info = JsonConvert.DeserializeObject<List<user_Info>>(Json)[0];
+        if (user_info.problem)
+        {
+            shareMomentControl.AddUser_Objects(user_info.content);
+        }        
     }
-
+    [Serializable]
+    public class user_Info
+    {
+        public bool problem;
+        public string content;
+    }
     /// <summary>
     /// 多模态接口 回调函数
     /// </summary>
@@ -368,6 +383,7 @@ public class API_Chat : MonoBehaviour
     public void Avatar_ProActive_Chat()
     {
         //不用有RAG,应用V2中的内容
+        //此外，本周的事件为：{ AI_Driven.plan_Objects[(settings.month_Index - 1) * 4 + settings.week_Index - 1].Event}
         string prompt = $@"你现在做为治愈小精灵，用模拟大学生生活的方式主动进行用户陪伴。
 模仿的过程中，需要以大学生的多维度目标来作为核心的驱动力，其中，目标维度分为：
 自我规划类，我已经知道自己真正想要追求什么
@@ -375,12 +391,12 @@ public class API_Chat : MonoBehaviour
 超我贡献类，我会从改善社会和人类福祉的角度考虑人生规划
 而这三类又被细分为四个导向：学业成就导向、职业准备导向、个人成长导向、社交关系导向
 此次陪伴以三个月，即十二个星期为期限。
-在这段事件中，你的核心目标选择为：{ListString.ListToString(AI_Driven.Avatar_Target)}
+在这段事件中，你的核心目标选择为：{ListString.ListToString(AI_Driven.Avatar_Status)}
 每个月，不同的核心目标都会有不同的权重分布，总和为1。
-本月中，四种核心目标的权重分布为：{ListString.ListToString(AI_Driven.Avatar_TargetWeight)}
+
 现在进入了第{settings.month_Index}个月的第{settings.week_Index}个星期，
-周计划有：{ListString.ListToString(AI_Driven.CurMon_Plan[(settings.month_Index-1)*4+settings.week_Index-1].Event)}
-此外，本周的事件为：{AI_Driven.event_Objects[(settings.month_Index - 1) * 4 + settings.week_Index - 1].Event}
+
+
 请你模仿这位大学生的身份，面对已有的计划和事件，做出响应。其中，在计划中选择本周你发生的内容，你可以选择1-2个进行模拟生成本周活动；事件是本周外部环境发生的事件，你进行的模拟本周活动可以选择被事件影响，或者不被事件影响。
 综合考虑上述因素后后，请你通过向用户分享本周活动内容的方式来发起主动对话。
 你可以选择两种模式进行对话，第一种是分享，即分享本周的活动内容。第二种是征求意见，即你可以根据本周的模拟活动是否有”需要决策“的部分，向用户发起意见征求，并生成两个相反的选项供用户选择。

@@ -5,7 +5,8 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
-
+using static System.Net.Mime.MediaTypeNames;
+using MyUtilities;
 public class ImageCreatBridge : MonoBehaviour
 {
     public Settings settings;
@@ -95,8 +96,12 @@ public class ImageCreatBridge : MonoBehaviour
             displayImage.texture = tex;
             //转发Image Base64
             string base64Image = TextureToBase64(tex);
-            Debug.Log("增加场景字典:");
-            settings.Add_Scene(scene_string, base64Image);
+            Debug.Log("增加场景列表: key = "+ scene_string);
+            //.Add_Scene(scene_string, base64Image);
+            var scene = settings.Share_Scenes_List.Find(s => s.Scene_Describe == scene_string);
+
+            //存储图片
+            scene.First_Frame_Image = tools.SaveBase64ToFile(base64Image, scene_string, (scene.Video_Links.Count).ToString()); ;
             Debug.Log("生成新场景中的第一个视频");
         }
         else

@@ -6,13 +6,14 @@ using System.Transactions;
 using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 using System.IO;
+using MyUtilities;
 
 public class Settings:Singleton<Settings>
 {
     protected override void Awake()
     {
         base.Awake();
-        InitializeScenesDictionary();
+        //InitializeScenesDictionary();
     }
 
     [Header("用户和AI设置")]
@@ -30,6 +31,8 @@ public class Settings:Singleton<Settings>
 
     public string CurSceneName;
     public Dictionary<String, Scene_Recording> Scenes_Dict = new();  // TO DO:3.31这里需要初始化读取  已经读取了
+
+    public List<Scene_Recording> Share_Scenes_List = new();
     
     [Header("上次输入时间")]
     public DateTime LastInputTime;
@@ -155,8 +158,15 @@ public class Settings:Singleton<Settings>
 [System.Serializable]
 public class Scene_Recording
 {
-    public string First_Frame_Image;
-    public List<string> Video_Links = new();
+    public int timeIndex;
+    public Status_Object state_Object;  //角色状态
+    public A_ConcreteBehavior a_ConcreteBehavior; //计划中的具体行为
+    public string World_Plan; // 世界事件
+    public string User_Plan; //用户事件
+    public string Scene_Describe; //场景描述
+
+    public string First_Frame_Image; //第一帧的图片内容
+    public List<string> Video_Links = new(); //根据第一帧图片生成的视频链接
 }
 
 

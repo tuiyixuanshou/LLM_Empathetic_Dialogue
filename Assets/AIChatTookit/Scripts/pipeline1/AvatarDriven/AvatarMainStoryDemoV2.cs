@@ -5,9 +5,10 @@ using UnityEngine;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using MyUtilities;
-using static AvatarMainStoryDemo;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 using Unity.Mathematics;
+using static AvatarMainStoryDemoV2;
 
 public class AvatarMainStoryDemoV2 : MonoBehaviour
 {
@@ -17,8 +18,9 @@ public class AvatarMainStoryDemoV2 : MonoBehaviour
     public API_Chat api_chat;
 
     [Header("Agent上下文维护")]
-    List<Dictionary<string, string>> APlan_Dial= new();
-    List<Dictionary<string, string>> AEvent_Dial= new();  //外部事件生成、动态调整
+    List<Dictionary<string, string>> A_Status_Dial= new();
+    List<Dictionary<string, string>> A_Eval_Dial = new();
+    List<Dictionary<string, string>> A_Plan_Dial= new();  //
     List<Dictionary<string, string>> AUnexpect_Dial = new();  //突发事件派发
 
     //这个直接加入Setting中的tempDialogue，tempDialogue有RAG可以使用
@@ -32,17 +34,25 @@ public class AvatarMainStoryDemoV2 : MonoBehaviour
     [Header("Avatar轨迹生成数据内容")]
     [TextArea(5,5)]
     public string Event_Pool;
-    public int MomentIndex;
-    public List<Event_Object> event_Objects ;
-    public List<Event_Object> Unexpect_Objects;
-    public List<Target_Object> Avatar_Target;
-    public List<Target_WeightObject> Avatar_TargetWeight;
+    public int timeIndex = 0;
+    public string World_Object;
+    public List<Status_Object> Avatar_Status; //Avatar状态
+    public List<Eval_WeightObject> Eval_Weight; //Avatar行为衡量标准
+    public List<A_ConcreteBehavior> plan_Objects ;//抽象行为生成后的筛选行为
+    public List<A_ConcreteBehavior> concreteBehaviors; //一日具体行为
 
-    public List<Week_Plan> CurMon_Plan;
+    private List<AbstractBehavior> Abstract_behaviors; //抽象类事件池
 
+    //public List<Event_Object> Unexpect_Objects;
+
+    private void Awake()
+    {
+        StartSampleandConcreteBehavior();
+    }
     private void Start()
     {
         reader.LoadFile("System_Prompt.json", Add_SystemPrompt);
+        reader.LoadFile("Abstract_Event_Pool.json", Abstract_EventPoolSet);
     }
 
     /// <summary>
@@ -56,11 +66,17 @@ public class AvatarMainStoryDemoV2 : MonoBehaviour
             {"role","system" },
             {"content",prompt }
         };
-        APlan_Dial.Add(newmmessage);
-        AEvent_Dial.Add(newmmessage);
+        A_Status_Dial.Add(newmmessage);
+        A_Eval_Dial.Add(newmmessage);
+        A_Plan_Dial.Add(newmmessage);
+
         AUnexpect_Dial.Add(newmmessage);
-        APlan_Target();
-        //AEvent_Generation();
+        //A_Status_t();
+    }
+
+    void Abstract_EventPoolSet(string text)
+    {
+        Abstract_behaviors = JsonConvert.DeserializeObject<List<AbstractBehavior>>(text);
     }
 
     public void UpdateControl()
@@ -82,132 +98,67 @@ public class AvatarMainStoryDemoV2 : MonoBehaviour
         {
             settings.month_Index++;
             settings.week_Index = 1;
-            APlan_SpecifyPlan();
+            //A_Eval_t();
         }
     }
 
-    public void APlan_Target()
+    public void A_Status_t()
     {
-        Debug.Log("开始总目标生成");
-        string prompt = $@"模仿一个大学生，生成大学生的多维度核心目标。其中目标维度分为：
-自我规划类，我已经知道自己真正想要追求什么
-志业追求类，我立志要在自己的专业或职业领域中做出突出成就
-超我贡献类，我会从改善社会和人类福祉的角度考虑人生规划
-这三类又被细分为四个导向：学业成就、职业准备、个人成长、社交关系。
-请综合以上的信息，生成四个导向的具体目标追求。
-注意：目标追求应该是一个具体、需长期努力、贴合大学生实际生活的事件。只需要生成一组目标即可，简洁明了。
-以Json的格式回复：[
-{{
-""学业成就"":""目标内容""，
-""职业准备"":""目标内容""，
-""个人成长"":""目标内容""，
-""社交关系"":""目标内容""
-}}
-]
-请不要返回除Json数据以外的任何内容";
+        Debug.Log("开始角色状态生成");
+        string prompt = $@"你正在模拟一个虚拟大学生的日常生活系统。
+请你根据当前的时间与情境，合理推测该虚拟人物在一天中上午、下午、晚上三个时间段的心理与生理状态。
+请生成以下结构化信息：
+1. 时间段（生成的三组内容分别代表上午、下午、晚上时间段）
+2. 精力（0-100之间的整数，代表当前的体力与精神状态）
+3. 心情（-5至5的整数，代表角色的情绪波动，负值为不开心，正值为开心）
+4. 压力（0.0 到 1.0，代表心理压力水平）
+5. 欲望（分别列出对以下方面的当前驱动力，数值范围为-1.0到1.0）：
+   - 放松
+   - 学习
+   - 社交
+   - 运动
+   - 自我提升
 
-        var newmmessage = new Dictionary<string, string>
-        {
-            {"role","user" },
-            {"content",prompt }
-        };
-        APlan_Dial.Add(newmmessage);
-        var payload = new
-        {
-            model = settings.m_SetModel(MainLine_Model),
-            messages = APlan_Dial,
-            stream = false
-        };
-        string Jsonpayload = JsonConvert.SerializeObject(payload);
-        StartCoroutine(PostWeb.postRequest(settings.m_SetUrl(MainLine_url), settings.m_SetApi(MainLine_api), Jsonpayload, APlan_Target_CallBack));
-    }
-
-    void APlan_Target_CallBack(string text)
-    {
-        var newmmessage = new Dictionary<string, string>
-        {
-            {"role","assistant" },
-            {"content",text }
-        };
-        APlan_Dial.Add(newmmessage);
-        string Json = JsonPatch(text);
-        try
-        {
-            Debug.Log("解析Json");
-            Avatar_Target = JsonConvert.DeserializeObject<List<Target_Object>>(Json);
-            //Debug.Log(Avatar_Target[0].职业准备导向);
-            APlan_SpecifyPlan();
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogError("JSON 解析失败：" + ex.Message);
-        }
-    }
-
-
-    public void AEvent_Generation()
-    {
-        Debug.Log("开始外部事件生成");
-        string prompt = $@"作为事件安排系统，安排7个客观事件，这些时间是System prompt中模仿的大学生可能会遇见的。
-事件发生时间的起点以system prompt中提供的真实时间为准，7个事件按时间顺序排列。
-可以包含：校内事件、好友事件、社会事件
-校内事件：在大学中会遇到的事件，多半由学校各组织安排
-好友事件：社交群体中会发生的事件，如会议、计划旅游等 
-社会事件：社会外界事件 
-不需要生成人物反应，只需要生成客观事件即可。
-输出格式为Json格式，按顺序输出，如
+请用以下 JSON 结构输出：
 [
-    {{""event_index"":1,""Event"":""<输入事件内容>""}},
-    {{""event_index"":2,""Event"":""<输入事件内容>""}},
-]
-请不要返回除Json数据以外的任何内容";
-
-        var newmmessage = new Dictionary<string, string>
-        {
-            {"role","user" },
-            {"content",prompt }
-        };
-        AEvent_Dial.Add(newmmessage);
-        var payload = new
-        {
-            model = settings.m_SetModel(MainLine_Model),
-            messages = AEvent_Dial,
-            stream = false
-        };
-        string Jsonpayload = JsonConvert.SerializeObject(payload);
-        StartCoroutine(PostWeb.postRequest(settings.m_SetUrl(MainLine_url), settings.m_SetApi(MainLine_api), Jsonpayload, AEvent_Generation_CallBack));
-    }
-
-    void AEvent_Generation_CallBack(string text)
-    {
-        var newmmessage = new Dictionary<string, string>
-        {
-            {"role","assistant" },
-            {"content",text }
-        };
-        AEvent_Dial.Add(newmmessage);
-        string Json = JsonPatch(text);
-        event_Objects = JsonConvert.DeserializeObject<List<Event_Object>>(Json);
-
-        //收集安排事件，用作Agent-Plan生成指导
-        //APlan_TargetWeigh();
-    }
-
-    public void APlan_TargetWeigh()
-    {
-        //这里我会给你提供目前已知的每个月的事件安排：{ListString.ListToString<Event_Object>(expose_EventObjects)}
-        Debug.Log("开始非最小事件单位目标权重生成");
-        string prompt = $@"模仿一个大学生，生成三个月中的核心目标权重分布，每月四种目标的权重总和为1。
-四个导向分别为：学业成就、职业准备、个人成长、社交关系。
-综合每月的事件，生成每个月的月目标权重。
-请你综合每月的事件，生成每个月的月目标权重。
-请以Json格式进行回复：[
 {{
-""month_index"":1,
-""学业成就"":0.1,
-""职业准备"":0.1,
-""个人成长"":0.1,
-""社交关系"":0.1
+  ""时间"": ""上午"",
+  ""精力"": ,
+  ""心情"": ,
+  ""压力"": ,
+  ""欲望"": {{
+    ""放松"": ,
+    ""学习"": ,
+    ""社交"": ,
+    ""运动"": ,
+    ""自我提升"": 
+  }}
+}},
+{{
+  ""时间"": ""下午"",
+  ""精力"": ,
+  ""心情"": ,
+  ""压力"": ,
+  ""欲望"": {{
+    ""放松"": ,
+    ""学习"": ,
+    ""社交"": ,
+    ""运动"": ,
+    ""自我提升"": 
+  }}
+}},
+{{
+  ""时间"": ""晚上"",
+  ""精力"": ,
+  ""心情"": ,
+  ""压力"": ,
+  ""欲望"": {{
+    ""放松"": ,
+    ""学习"": ,
+    ""社交"": ,
+    ""运动"": ,
+    ""自我提升"": 
+  }}
 }}
 ]
 请不要返回除Json数据以外的任何内容";
@@ -217,99 +168,252 @@ public class AvatarMainStoryDemoV2 : MonoBehaviour
             {"role","user" },
             {"content",prompt }
         };
-        APlan_Dial.Add(newmmessage);
+        A_Status_Dial.Add(newmmessage);
         var payload = new
         {
             model = settings.m_SetModel(MainLine_Model),
-            messages = APlan_Dial,
+            messages = A_Status_Dial,
             stream = false
         };
         string Jsonpayload = JsonConvert.SerializeObject(payload);
-        StartCoroutine(PostWeb.postRequest(settings.m_SetUrl(MainLine_url), settings.m_SetApi(MainLine_api), Jsonpayload, APlan_TargetWeigh_CallBack));
+        StartCoroutine(PostWeb.postRequest(settings.m_SetUrl(MainLine_url), settings.m_SetApi(MainLine_api), Jsonpayload, A_Status_t_CallBack));
     }
 
-    void APlan_TargetWeigh_CallBack(string text)
+    void A_Status_t_CallBack(string text)
     {
         var newmmessage = new Dictionary<string, string>
         {
             {"role","assistant" },
             {"content",text }
         };
-        APlan_Dial.Add(newmmessage);
+        A_Status_Dial.Add(newmmessage);
         string Json = JsonPatch(text);
         try
         {
             Debug.Log("解析Json");
-            Avatar_TargetWeight = JsonConvert.DeserializeObject<List<Target_WeightObject>>(Json);
+            Avatar_Status = JsonConvert.DeserializeObject<List<Status_Object>>(Json);
+            A_Eval_t(timeIndex);
+
         }
         catch (System.Exception ex)
         {
             Debug.LogError("JSON 解析失败：" + ex.Message);
         }
-        APlan_SpecifyPlan();
     }
 
-    public void APlan_SpecifyPlan(Action CallBack = null)
+    public void A_Eval_t(int timeIndex)
     {
-        Debug.Log("开始进行计划生成");
+        Debug.Log("开始衡量标准权重生成");
         //List<Target_WeightObject> newWeigh = new();
         //newWeigh.Add(Avatar_TargetWeight[settings.month_Index - 1]);
-        //你的目标:{ListString.ListToString(Avatar_Target)}
-        string prompt = $@"现在你模仿大学生，来生成接下来7个时间点的计划。计划会受到你的性格、环境、目标等多方面影响。
-计划时间的起点以system prompt中提供的真实时间为准，7个事件按时间顺序排列。
-你需要在事件池中，选择事件安排.事件池：{Event_Pool}.
-目标导向会对事件选择产生影响，具体影响为：
-学术成就：学习培训占比显著增加，自由支配活动被压缩，无酬劳动简化
-职业准备：有酬劳动/技能学习优先级提升，自由支配活动偏向实用化，交通活动范围扩大
-个人成长导向：自由支配活动高度结构化，生理必需活动优化，学习培训可能让步
-社交关系导向：自由支配活动社交化，无酬劳动协作性增强，学习培训效率要求提高
-由1或2个核心目标作为导向，作为该时间点下的计划事件。
-请你选择每个时间点的计划事件，计划事件将链接成你的活动主线。回复内容请用Json格式
+        //你的目标:{ListString.ListToString(Avatar_Status)}
+        string prompt = $@"你是一个虚拟行为权重生成器，任务是根据角色的性格、环境、心理与生理状态，以及外部发生的事件，为其生成当下的行为偏好分布。
+【当前角色状态】
+- 时间：{Avatar_Status[timeIndex].时间}
+- 精力值：{Avatar_Status[timeIndex].精力}（0-100，越高代表越有体力）
+- 心情值：{Avatar_Status[timeIndex].心情}（-5至5，负值代表情绪低落）
+- 压力水平：{Avatar_Status[timeIndex].压力}（0.0-1.0，越高表示压力越大）
+- 欲望值：
+  - 放松：{Avatar_Status[timeIndex].欲望.放松}
+  - 学习：{Avatar_Status[timeIndex].欲望.学习}
+  - 社交：{Avatar_Status[timeIndex].欲望.社交}
+  - 运动：{Avatar_Status[timeIndex].欲望.运动}
+  - 自我提升：{Avatar_Status[timeIndex].欲望.自我提升}
+【外部发生事件】
+{World_Object}（请分析对于角色性格而言，该事件会对行为权重产生的影响）
+
+请根据以上状态，合理生成一个行为打分权重，表示当前角色在五种行为上的倾向。注意：
+- 如果角色精力较低、压力较大，通常更偏好“放松”
+- 如果角色心情好、精力充足，自我提升或运动倾向可能更高
+- 欲望值是角色内在驱动，需优先参考，但也要考虑精力与压力的调节作用
+- 外部事件是当天真实世界中发生的事件，请综合角色性格、心理、状态，考虑外部事件对于角色活动行为权重的影响
+
+请输出如下JSON 结构（值范围0.0~1.0）：
 [
-{{""Index"":1,
-""Event"":[{{""type"":""<选取事件的类型，如<学习培训><自由支配活动>>"",""driven_type"":""<说明导向类型，如学术成就、职业准备等>""""specify_event"":""<描述事件>""}}，{{”type“:""<选取事件的类型，如<学习培训><自由支配活动>>"",""driven_type"":""<说明导向类型，如学术成就、职业准备等>""""specify_event"":""<描述事件>""}}]}},
-]
-请不要返回除Json数据以外的任何内容";
+{{
+  ""放松"": ,
+  ""学习"": ,
+  ""社交"": ,
+  ""运动"": ,
+  ""自我提升"": ,
+  ""解释"":""""
+}}
+]";
 
         var newmmessage = new Dictionary<string, string>
         {
             {"role","user" },
             {"content",prompt }
         };
-        APlan_Dial.Add(newmmessage);
+        A_Eval_Dial.Add(newmmessage);
         var payload = new
         {
             model = settings.m_SetModel(MainLine_Model),
-            messages = APlan_Dial,
+            messages = A_Eval_Dial,
             stream = false
         };
         string Jsonpayload = JsonConvert.SerializeObject(payload);
-        StartCoroutine(PostWeb.postRequest(settings.m_SetUrl(MainLine_url), settings.m_SetApi(MainLine_api), Jsonpayload, APlan_SpecifyPlan_CallBack));
+        StartCoroutine(PostWeb.postRequest(settings.m_SetUrl(MainLine_url), settings.m_SetApi(MainLine_api), Jsonpayload, A_Eval_CallBack));
     }
 
-    void APlan_SpecifyPlan_CallBack(string text)
+    void A_Eval_CallBack(string text)
     {
         var newmmessage = new Dictionary<string, string>
         {
             {"role","assistant" },
             {"content",text }
         };
-        APlan_Dial.Add(newmmessage);
+        A_Eval_Dial.Add(newmmessage);
         string Json = JsonPatch(text);
         try
         {
             Debug.Log("解析Json");
-            CurMon_Plan = JsonConvert.DeserializeObject<List<Week_Plan>>(Json);
+            var Weight = JsonConvert.DeserializeObject<List<Eval_WeightObject>>(Json)[0];
+            Eval_Weight.Add(Weight);
         }
         catch (System.Exception ex)
         {
             Debug.LogError("JSON 解析失败：" + ex.Message);
         }
 
-        //直接让他调用主动对话
-        //api_chat.Avatar_ProActive_Chat();
-        Debug.Log("进行第一次share moment");
-        shareMomentControl.ShareMomentStart();
+        //Debug.Log("进行第一次share moment");
+        //shareMomentControl.ShareMomentStart();
+        if (timeIndex < 2)
+        {
+            timeIndex++;
+            A_Eval_t(timeIndex);
+        }
+        else
+        {
+            Debug.Log("Eval评估标准生成结束，进入下一步");
+            timeIndex = 0;
+            Debug.Log("开始对抽象行为类进行采样");
+            StartSampleandConcreteBehavior();
+
+        }
+    }
+
+    public void StartSampleandConcreteBehavior()
+    {
+        if (timeIndex < 3)
+        {
+            var cur_AbstractBehavior = SampleTopBehaviors(Eval_Weight[timeIndex], 1);
+            Debug.Log("获得抽象行为：" + cur_AbstractBehavior[0].name);
+            A_Plan_t(cur_AbstractBehavior, timeIndex);
+            timeIndex++;
+        }
+        else
+        {
+            Debug.Log("同天内容已经生成结束。");
+            for(int i = 0; i < 3; i++)
+            {
+                Scene_Recording newScene = new Scene_Recording
+                {
+                    timeIndex = i,
+                    state_Object = Avatar_Status[i],
+                    a_ConcreteBehavior = concreteBehaviors[i],
+                    World_Plan = World_Object,
+                };
+                settings.Share_Scenes_List.Add(newScene);
+            }
+            Debug.Log("已全部加入Settings中");
+        }
+        
+    }
+
+    public List<AbstractBehavior> SampleTopBehaviors(Eval_WeightObject preference, int topN = 3)
+    {
+        return Abstract_behaviors
+            .OrderByDescending(b =>
+                preference.学习 * b.behavior_traits.学习 +
+                preference.放松 * b.behavior_traits.放松 +
+                preference.社交 * b.behavior_traits.社交 +
+                preference.运动 * b.behavior_traits.运动 +
+                preference.自我提升* b.behavior_traits.自我提升
+            )
+            .Take(topN)
+            .ToList();
+    }
+
+    public void A_Plan_t(List<AbstractBehavior> preference,int timeIndex)
+    {
+        Debug.Log("开始细化事件生成");
+        string prompt = $@"你将虚拟人物行为细化。
+请根据给定的“抽象行为”“真实世界内容”与“当前角色状态”，生成多种可供选择的具体行为选项，每个选项应具有合理的内容、地点和当前偏好评分（用于后续采样）。
+【抽象行为】：{ListString.ListToString(preference)}
+【真实世界内容】：{World_Object}（请结合真实世界内容生成具体计划）
+【角色状态】：
+- 当前心情：{Avatar_Status[timeIndex].心情}（范围：-5至+5）
+- 当前精力：{Avatar_Status[timeIndex].精力}（范围：0-100）
+- 当前压力：{Avatar_Status[timeIndex].压力}(范围：0.0 到 1.0，代表心理压力水平)
+- 欲望值：
+  - 放松：{Avatar_Status[timeIndex].欲望.放松}
+  - 学习：{Avatar_Status[timeIndex].欲望.学习}
+  - 社交：{Avatar_Status[timeIndex].欲望.社交}
+  - 运动：{Avatar_Status[timeIndex].欲望.运动}
+  - 自我提升：{Avatar_Status[timeIndex].欲望.自我提升}
+
+【输出要求】：
+请生成 3～5 个 JSON 格式的候选行为选项，每个包含以下字段：
+[
+  {{
+    ""title"": ""行为标题，例如：和朋友聚餐"",
+    ""description"": ""一句话解释行为目的和感受"",
+    ""location"": ""行为发生的场所"",
+    ""weight"": 0.0～1.0，表示此刻角色对该行为的倾向""
+  }}
+]";
+        var newmmessage = new Dictionary<string, string>
+        {
+            {"role","user" },
+            {"content",prompt }
+        };
+        A_Plan_Dial.Add(newmmessage);
+        var payload = new
+        {
+            model = settings.m_SetModel(MainLine_Model),
+            messages = A_Plan_Dial,
+            stream = false
+        };
+        string Jsonpayload = JsonConvert.SerializeObject(payload);
+        StartCoroutine(PostWeb.postRequest(settings.m_SetUrl(MainLine_url), settings.m_SetApi(MainLine_api), Jsonpayload, A_Plan_CallBack));
+    }
+
+    void A_Plan_CallBack(string text)
+    {
+        var newmmessage = new Dictionary<string, string>
+        {
+            {"role","assistant" },
+            {"content",text }
+        };
+        A_Plan_Dial.Add(newmmessage);
+        string Json = JsonPatch(text);
+        plan_Objects.Clear();
+        plan_Objects = JsonConvert.DeserializeObject<List<A_ConcreteBehavior>>(Json);
+
+        Debug.Log("获得行动内容，进入具体活动内容采样");
+        var item = SampleConcreteBehavior(plan_Objects);
+        concreteBehaviors.Add(item);
+    }
+
+    private A_ConcreteBehavior SampleConcreteBehavior(List<A_ConcreteBehavior> options) 
+    {
+        float totalchance = 0f;
+        foreach(var item in options)
+        {
+            totalchance += item.weight;
+        }
+        float rand = UnityEngine.Random.Range(0, totalchance);
+        float cur_chance = 0f;
+        foreach(var item in options)
+        {
+            cur_chance += item.weight;
+            if (rand <= cur_chance)
+            {
+                return item;
+            }
+        }
+        return options[0];
     }
 
     public void AUnexpect_Event(Action CallBack = null)
@@ -351,11 +455,11 @@ public class AvatarMainStoryDemoV2 : MonoBehaviour
         };
         AUnexpect_Dial.Add(newmmessage);
         Debug.Log("突发事件：" + text);
-        Unexpect_Objects.Add(new Event_Object
-        {
-            event_index = MomentIndex, 
-            Event = text
-        });
+        //Unexpect_Objects.Add(new Event_Object
+        //{
+        //    event_index = MomentIndex, 
+        //    Event = text
+        //});
     }
    
 
@@ -379,6 +483,18 @@ public class AvatarMainStoryDemoV2 : MonoBehaviour
         }
     }
     #region 解析目标
+
+    [System.Serializable]
+    public class AbstractBehavior
+    {
+        public string id;
+        public string name;
+        public string[] tags;
+        public string activation_hint;
+        public string[] typical_locations;
+        public A_S_Desire behavior_traits;
+    }
+
     [Serializable]
     public class Event_Object
     {
@@ -386,24 +502,18 @@ public class AvatarMainStoryDemoV2 : MonoBehaviour
         public string Event;
     }
 
-    [Serializable]
-    public class Target_Object
-    {
-        public string 学业成就;
-        public string 职业准备;
-        public string 个人成长;
-        public string 社交关系;
-    }
 
     [Serializable]
-    public class Target_WeightObject
+    public class Eval_WeightObject
     {
-        public int month_index;
-        public float 学业成就;
-        public float 职业准备;
-        public float 个人成长;
-        public float 社交关系;
+        public float 放松;
+        public float 学习;
+        public float 社交;
+        public float 运动;
+        public float 自我提升;
+        public string 解释;
     }
+
     [Serializable]
     public class Week_Plan
     {
